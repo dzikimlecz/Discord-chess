@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+}
+
+group 'me.dzikimlecz'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = JavaVersion.VERSION_15
+
+sourceSets {
+    main({
+        java {
+            srcDirs 'src\\main\\java'
+        }
+    })
+}
+
+mainClassName = 'me.dzikimlecz.discordchess.bot.Bot'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '4.2.0_198'
+    implementation group: 'com.jagrosh', name: 'jda-utilities', version: '3.0.4'
+    implementation group: 'me.duncte123', name: 'botCommons', version: 'BETA_2.0.110'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    implementation group: 'io.github.cdimascio', name: 'java-dotenv', version: '5.2.1'
+}
+
+test {
+    useJUnitPlatform()
+}
