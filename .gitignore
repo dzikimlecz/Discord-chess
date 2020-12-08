@@ -5,6 +5,5 @@ res/
 gradlew
 gradlew.bat
 settings.gradle
-src/main/java/me/dzikimlecz/discordchess/chess/
 .idea/
 .gradle/
