@@ -3,8 +3,9 @@ package me.dzikimlecz.discordchess.chess.board;
 import me.dzikimlecz.discordchess.chess.Color;
 import me.dzikimlecz.discordchess.chess.pieces.*;
 
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static me.dzikimlecz.discordchess.chess.Color.*;
 
@@ -58,13 +59,39 @@ public class Board {
 		return new int[]{row-1, line - 'a'};
 	}
 
-	public List<Pawn> getPawnsFromLine(char line, Color color) throws IllegalAccessException {
+	public List<? extends Piece> getPiecesMovingTo(char line,
+	                                               int row,
+	                                               Class<? extends Piece> type,
+	                                               Color color) {
+		if (type == Pawn.class) return getPawnsNearby(line, row, color);
+		if (type == Knight.class) return getKnightsAttacking(line, row, color);
+		if (type == Bishop.class) return getBishopsOnDiagonals(line, row, color);
+		if (type == Rook.class) return getRooksOnLines(line, row, color);
+		if (type == Queen.class) return getQueenFromLineOrDiagonal(line, row, color);
+		return getKingNearby(line ,row);
+	}
+
+
+	public List<Pawn> getPawnsNearby(char line, int row, Color color) {
 		List<Pawn> pawns = new ArrayList<>();
-		final int x = parseCoords(0, line)[1];
-		for (int y = 0; y < 7; y++) {
-			var piece = theBoard[y][x].getPiece();
-			if (piece instanceof Pawn && piece.getColor() == color)
-				 pawns.add((Pawn) piece);
+		int[] coords = parseCoords(row, line);
+		final int startingY = coords[0];
+		final int startingX = coords[1];
+		int yCursor = startingY;
+		int xCursor = startingX;
+		byte[] yDeltas = {1, 1, 1, 2};
+		byte[] xDeltas = {0, -1, 1, 0};
+		for (int i = 0; i < yDeltas.length; i++) {
+			byte yDelta = yDeltas[i];
+			byte xDelta = xDeltas[i];
+			while (yCursor >= 0 && yCursor < theBoard.length &&
+					xCursor >= 0 && xCursor < theBoard[0].length) {
+				Piece selected = theBoard[yCursor][xCursor].getPiece();
+				if (selected instanceof Pawn && selected.getColor() == color)
+					pawns.add((Pawn) selected);
+				yCursor += yDelta;
+				xCursor += xDelta;
+			}
 		}
 		return List.copyOf(pawns);
 	}
@@ -89,7 +116,7 @@ public class Board {
 		int xCursor = startingX;
 		byte[] yDeltas = {1, 1, -1, -1};
 		byte[] xDeltas = {1, -1, 1, -1};
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < yDeltas.length; i++) {
 			byte yDelta = yDeltas[i];
 			byte xDelta = xDeltas[i];
 			while (yCursor >= 0 && yCursor < theBoard.length &&
@@ -104,7 +131,7 @@ public class Board {
 		return List.copyOf(bishops);
 	}
 
-	public Optional<King> getKingNearby(char line, int row) {
+	public List<King> getKingNearby(char line, int row) {
 		var center = parseCoords(row, line);
 		final int centerY = center[0];
 		final int centerX = center[1];
@@ -113,10 +140,10 @@ public class Board {
 			for (int xDelta = -1; xDelta <= 1; xDelta++) {
 				int x = centerX + xDelta;
 				Piece piece = theBoard[y][x].getPiece();
-				if (piece instanceof King) return Optional.of((King) piece);
+				if (piece instanceof King) return List.of((King) piece);
 			}
 		}
-		return Optional.empty();
+		return List.of();
 	}
 
 	public List<Knight> getKnightsAttacking(char line, int row, Color color) {

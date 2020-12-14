@@ -27,12 +27,12 @@ public class Square {
 		return containedPiece;
 	}
 	
-	public char getColumn() {
-		return (char) (y + 49);
+	public char getLine() {
+		return (char) (y + 'a');
 	}
 	
-	public char getRow(){
-		return (char) ('1' + x);
+	public int getRow(){
+		return x;
 	}
 	
 	@Override

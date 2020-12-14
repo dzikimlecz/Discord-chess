@@ -5,8 +5,8 @@ import me.dzikimlecz.discordchess.chess.board.Square;
 
 public abstract class Piece {
 	
-	private final Color color;
-	private Square currentLocation;
+	protected final Color color;
+	protected Square currentLocation;
 	
 	public Piece(Color color, Square startLocation) {
 		this.color = color;
@@ -18,7 +18,11 @@ public abstract class Piece {
 		if(pieceMoved) currentLocation = square;
 		return pieceMoved;
 	}
-	
+
+	public char[] getLocation() {
+		return new char[] {currentLocation.getLine(), (char) currentLocation.getRow()};
+	}
+
 	public Color getColor() {
 		return color;
 	}
