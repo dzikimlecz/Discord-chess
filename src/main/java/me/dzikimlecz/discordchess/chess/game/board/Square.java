@@ -1,7 +1,6 @@
-package me.dzikimlecz.discordchess.chess.board;
+package me.dzikimlecz.discordchess.chess.game.board;
 
-import me.dzikimlecz.discordchess.chess.Color;
-import me.dzikimlecz.discordchess.chess.pieces.Piece;
+import me.dzikimlecz.discordchess.chess.game.board.pieces.Piece;
 import org.jetbrains.annotations.Nullable;
 
 public class Square {

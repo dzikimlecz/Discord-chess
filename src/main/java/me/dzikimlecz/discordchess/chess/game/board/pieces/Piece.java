@@ -1,29 +1,28 @@
-package me.dzikimlecz.discordchess.chess.pieces;
+package me.dzikimlecz.discordchess.chess.game.board.pieces;
 
-import me.dzikimlecz.discordchess.chess.Color;
-import me.dzikimlecz.discordchess.chess.board.Square;
+import me.dzikimlecz.discordchess.chess.game.board.Color;
+import me.dzikimlecz.discordchess.chess.game.board.Square;
 
-public abstract class Piece {
-	
-	protected final Color color;
+public abstract class Piece extends ChessPiece {
 	protected Square currentLocation;
 	
 	public Piece(Color color, Square startLocation) {
-		this.color = color;
+		super(color);
 		currentLocation = startLocation;
 	}
 	
-	public boolean moveTo(Square square) {
+	public void moveTo(Square square) {
 		boolean pieceMoved = square.putPiece(this);
 		if(pieceMoved) currentLocation = square;
-		return pieceMoved;
 	}
 
 	public char[] getLocation() {
 		return new char[] {currentLocation.getLine(), (char) currentLocation.getRow()};
 	}
 
-	public Color getColor() {
-		return color;
+	public Square getSquare() {
+		return currentLocation;
 	}
+
+
 }
