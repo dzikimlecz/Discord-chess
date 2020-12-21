@@ -4,16 +4,21 @@ import me.dzikimlecz.discordchess.chess.game.board.pieces.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static me.dzikimlecz.discordchess.chess.game.board.Color.BLACK;
 import static me.dzikimlecz.discordchess.chess.game.board.Color.WHITE;
 
 public class Board {
 	private final Square[][] theBoard;
-	
+	private final King whiteKing;
+	private final King blackKing;
+
+
 	public Board() {
 		this.theBoard = new Square[8][8];
 		//initializes all squares of the board
@@ -22,27 +27,26 @@ public class Board {
 				theBoard[y][x] = new Square(x, y, Color.values()[(x + y) % 2]);
 		//Puts Pawns
 		for (int x = 0; x < 8; x++) {
-			theBoard[1][x].putPiece(new Pawn(WHITE, theBoard[1][x]));
-			theBoard[6][x].putPiece(new Pawn(BLACK, theBoard[6][x]));
+			new Pawn(WHITE, theBoard[1][x]);
+			new Pawn(BLACK, theBoard[6][x]);
 		}
-		//Puts ever piece on its place
-		//idk may be optimised i have no ideas.
+		//Puts every piece on its place
 		List.of(theBoard[0][0], theBoard[0][7])
-				.forEach(square -> square.putPiece(new Rook(WHITE, square)));
+				.forEach(square -> new Rook(WHITE, square));
 		List.of(theBoard[7][0], theBoard[7][7])
-				.forEach(square -> square.putPiece(new Rook(BLACK, square)));
+				.forEach(square -> new Rook(BLACK, square));
 		List.of(theBoard[0][1], theBoard[0][6])
-				.forEach(square -> square.putPiece(new Knight(WHITE, square)));
+				.forEach(square -> new Knight(WHITE, square));
 		List.of(theBoard[7][1], theBoard[7][6])
-				.forEach(square -> square.putPiece(new Knight(BLACK, square)));
+				.forEach(square -> new Knight(BLACK, square));
 		List.of(theBoard[0][2], theBoard[0][5])
-				.forEach(square -> square.putPiece(new Bishop(WHITE, square)));
+				.forEach(square -> new Bishop(WHITE, square));
 		List.of(theBoard[7][2], theBoard[7][5])
-				.forEach(square -> square.putPiece(new Bishop(BLACK, square)));
-		theBoard[0][3].putPiece(new Queen(WHITE, theBoard[0][3]));
-		theBoard[7][3].putPiece(new Queen(BLACK, theBoard[7][3]));
-		theBoard[0][4].putPiece(new King(WHITE, theBoard[7][3]));
-		theBoard[7][4].putPiece(new King(BLACK, theBoard[7][4]));
+				.forEach(square -> new Bishop(BLACK, square));
+		new Queen(WHITE, theBoard[0][3]);
+		new Queen(BLACK, theBoard[7][3]);
+		whiteKing = new King(WHITE, theBoard[7][3]);
+		blackKing = new King(BLACK, theBoard[7][4]);
 	}
 
 	/**
@@ -87,8 +91,8 @@ public class Board {
 	 * @return all squares between {@code square} and {@code square1}
 	 */
 	public List<Square> squaresBetween(Square square, Square square1, boolean inclusive) {
-		final int lesserChange = inclusive ? 0 : 1;
-		final int biggerChange = inclusive ? 1 : 0;
+		int lesserChange = inclusive ? 0 : 1;
+		int biggerChange = inclusive ? 1 : 0;
 		final int lesserY = Math.min(square.getRow(), square1.getRow()) + lesserChange;
 		final int biggerY = Math.max(square.getRow(), square1.getRow()) + biggerChange;
 		final char lesserX = (char) (Math.min(square.getLine(), square1.getLine()) + lesserChange);
@@ -106,31 +110,27 @@ public class Board {
 	                                               int row,
 	                                               @Nullable Class<? extends Piece> type,
 	                                               @NotNull Color color) {
-
-		if (type == Pawn.class) return getPawnsNearby(line, row, color);
-		if (type == Knight.class) return getKnightsAttacking(line, row, color);
-		if (type == Bishop.class) return getBishopsOnDiagonals(line, row, color);
-		if (type == Rook.class) return getRooksOnLines(line, row, color);
-		if (type == Queen.class) return getQueenFromLineOrDiagonal(line, row, color);
-		if (type == King.class) return getKingNearby(line, row, color);
-
-		List<Class<? extends Piece>> distantAttackingTypes = List.of(
-				Knight.class,
-				Bishop.class,
-				Rook.class,
-				Queen.class
-		);
-
-		if (type == null) {
-			List<Piece> pieces = new ArrayList<>();
-			distantAttackingTypes.forEach(
-					clazz -> pieces.addAll(getPiecesMovingTo(line, row, clazz, color)));
-			return List.copyOf(pieces);
+		List<Piece> pieces = new ArrayList<>();
+		if (type != null) {
+			Arrays.stream(theBoard).forEach(boardRow -> Arrays.stream(boardRow)
+					.map(Square::getPiece)
+					.filter(Objects::nonNull)
+					.filter(piece -> piece.getColor() == color && piece.getClass() == type)
+					.filter(piece -> piece.getMoveDeltas().stream().anyMatch(set -> {
+						        boolean lineMatch = piece.getLocation()[0] + set[0] == line;
+						        boolean rowMatch = piece.getLocation()[1] + set[1] == row;
+						        return lineMatch && rowMatch;
+					        })
+					).forEach(pieces::add));
+		} else {
+			List.of(
+					Knight.class,
+					Bishop.class,
+					Rook.class,
+					Queen.class
+			).forEach(clazz -> pieces.addAll(getPiecesMovingTo(line, row, clazz, color)));
 		}
 
-		List<Piece> pieces = new ArrayList<>(getPiecesMovingTo(line, row, null, color));
-		pieces.addAll(getPiecesMovingTo(line, row, Pawn.class, color));
-		pieces.addAll(getPiecesMovingTo(line, row, King.class, color));
 		return List.copyOf(pieces);
 	}
 
@@ -164,18 +164,19 @@ public class Board {
 		int[] coords = parseCoords(row, line);
 		final int startingY = coords[0];
 		final int startingX = coords[1];
-		int yCursor = startingY;
-		int xCursor = startingX;
-		byte[] yDeltas = {1, 1, -1, -1};
-		byte[] xDeltas = {1, -1, 1, -1};
-		for (int i = 0; i < yDeltas.length; i++) {
-			byte yDelta = yDeltas[i];
-			byte xDelta = xDeltas[i];
+		byte[][] diagonalDeltasSets = {{1,1}, {1,-1}, {-1, 1}, {-1, -1}};
+		for (byte[] deltas : diagonalDeltasSets) {
+			byte yDelta = deltas[0];
+			byte xDelta = deltas[1];
+			int yCursor = startingY;
+			int xCursor = startingX;
 			while (yCursor >= 0 && yCursor < theBoard.length &&
 					xCursor >= 0 && xCursor < theBoard[0].length) {
-				Piece selected = theBoard[yCursor][xCursor].getPiece();
-				if (selected instanceof Bishop && selected.getColor() == color)
-					bishops.add((Bishop) selected);
+				if (xCursor != startingX || yCursor != startingY) {
+					var piece = theBoard[yCursor][xCursor].getPiece();
+					if (piece instanceof Bishop && piece.getColor() == color)
+						bishops.add((Bishop) piece);
+				}
 				yCursor += yDelta;
 				xCursor += xDelta;
 			}
@@ -224,36 +225,38 @@ public class Board {
 	private List<Queen> getQueenFromLineOrDiagonal(char line, int row, Color color) {
 		List<Queen> queens = new ArrayList<>();
 		int[] coords = parseCoords(row, line);
+
 		final int startingY = coords[0];
 		final int startingX = coords[1];
-		int yCursor = startingY;
-		int xCursor = startingX;
-		byte[] yDeltas = {1, 1, -1, -1};
-		byte[] xDeltas = {1, -1, 1, -1};
-		for (int i = 0; i < 4; i++) {
-			byte yDelta = yDeltas[i];
-			byte xDelta = xDeltas[i];
+		byte[][] diagonalDeltasSets = {{1,1}, {1,-1}, {-1, 1}, {-1, -1}};
+		for (byte[] deltas : diagonalDeltasSets) {
+			byte yDelta = deltas[0];
+			byte xDelta = deltas[1];
+			int yCursor = startingY;
+			int xCursor = startingX;
 			while (yCursor >= 0 && yCursor < theBoard.length &&
 					xCursor >= 0 && xCursor < theBoard[0].length) {
-				var piece = theBoard[yCursor][xCursor].getPiece();
-				if (piece instanceof Queen && piece.getColor() == color)
-					queens.add((Queen) piece);
+				if (xCursor != startingX || yCursor != startingY) {
+					var piece = theBoard[yCursor][xCursor].getPiece();
+					if (piece instanceof Queen && piece.getColor() == color)
+						queens.add((Queen) piece);
+				}
 				yCursor += yDelta;
 				xCursor += xDelta;
 			}
 		}
-		for(xCursor = 0; xCursor < theBoard[0].length; xCursor++) {
+
+		for(int xCursor = 0; xCursor < theBoard[0].length; xCursor++) {
 			var piece = theBoard[startingY][xCursor].getPiece();
 			if (piece instanceof Queen && piece.getColor() == color)
 				queens.add((Queen) piece);
 		}
-		for(yCursor = 0; yCursor < theBoard.length; yCursor++) {
-			var piece = theBoard[yCursor][startingX].getPiece();
+		for (Square[] squares : theBoard) {
+			var piece = squares[startingX].getPiece();
 			if (piece instanceof Queen && piece.getColor() == color)
 				queens.add((Queen) piece);
 		}
 		return List.copyOf(queens);
-
 	}
 
 	private List<Rook> getRooksOnLines(char line, int row, Color color) {
@@ -275,13 +278,7 @@ public class Board {
 	}
 
 	public King getKing(Color color) {
-		for (Square[] squares : theBoard) {
-			for (Square square : squares) {
-				Piece piece = square.getPiece();
-				if (piece instanceof King && piece.getColor() == color) return (King) piece;
-			}
-		}
-		throw new RuntimeException();
+		return (color == WHITE) ? whiteKing : blackKing;
 	}
 
 	//may be changed i used it for debugging
