@@ -10,7 +10,7 @@ import me.dzikimlecz.discordchess.chess.game.board.Square;
  * @see Piece
  * @see Takeable
  */
-public class Pawn extends Piece implements Takeable {
+public final class Pawn extends Piece implements Takeable {
 	
 	public Pawn(Color color, Square startLocation) {
 		super(color, startLocation);

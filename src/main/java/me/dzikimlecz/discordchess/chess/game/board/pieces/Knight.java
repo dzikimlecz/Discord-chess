@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
  * @see Takeable
  */
 
-public class Knight extends Piece implements Takeable {
+public final class Knight extends Piece implements Takeable {
 	
 	public Knight(Color color, Square startLocation) {
 		super(color, startLocation);

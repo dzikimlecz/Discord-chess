@@ -10,7 +10,7 @@ import me.dzikimlecz.discordchess.chess.game.board.Square;
  * @see Piece
  * @see Takeable
  */
-public class Rook extends Piece implements Takeable {
+public final class Rook extends Piece implements Takeable {
 	
 	
 	public Rook(Color color, Square startLocation) {

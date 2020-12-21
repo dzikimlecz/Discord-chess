@@ -10,7 +10,7 @@ import me.dzikimlecz.discordchess.chess.game.board.Square;
  * @see Piece
  */
 
-public class King extends Piece {
+public final class King extends Piece {
 	
 	public King(Color color, Square startLocation) {
 		super(color, startLocation);

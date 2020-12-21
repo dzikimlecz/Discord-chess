@@ -11,7 +11,7 @@ import java.util.List;
  * @see Piece
  * @see Takeable
  */
-public class Bishop extends Piece implements Takeable {
+public final class Bishop extends Piece implements Takeable {
 
 	public Bishop(Color color, Square startLocation) {
 		super(color, startLocation);

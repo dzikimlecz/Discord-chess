@@ -12,7 +12,7 @@ import java.util.List;
  * @see Piece
  * @see Takeable
  */
-public class Queen extends Piece implements Takeable {
+public final class Queen extends Piece implements Takeable {
 
 	public Queen(Color color, Square startLocation) {
 		super(color, startLocation);
