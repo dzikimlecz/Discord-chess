@@ -24,6 +24,22 @@ public class Rook extends Piece implements Takeable {
 
 	@Override
 	public void beTaken() {
+		currentLocation.putPiece(null);
+		currentLocation = null;
+		deltas = null;
+	}
 
+	@Override
+	public void moveTo(Square square) {
+		super.moveTo(square);
+
+		final int startingRow = currentLocation.getRow();
+		final char startingLine = currentLocation.getLine();
+		for (int row = 1; row <= 8; row++)
+			if (row != startingRow)
+				deltas.add(new int[] {row - startingRow, startingLine});
+		for (char line = 'a'; line <= 'h'; line++)
+			if (line != startingLine)
+				deltas.add(new int[] {startingRow, line - startingLine});
 	}
 }

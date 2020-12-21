@@ -3,17 +3,23 @@ package me.dzikimlecz.discordchess.chess.game.board.pieces;
 import me.dzikimlecz.discordchess.chess.game.board.Color;
 import me.dzikimlecz.discordchess.chess.game.board.Square;
 
-public abstract class Piece extends ChessPiece {
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class Piece extends ChessPiece implements Movable {
 	protected Square currentLocation;
+	protected List<int[]> deltas;
 	
 	public Piece(Color color, Square startLocation) {
 		super(color);
-		currentLocation = startLocation;
+		deltas = new ArrayList<>();
+		moveTo(startLocation);
 	}
-	
+
 	public void moveTo(Square square) {
 		boolean pieceMoved = square.putPiece(this);
-		if(pieceMoved) currentLocation = square;
+		if (pieceMoved) currentLocation = square;
+		deltas.clear();
 	}
 
 	public char[] getLocation() {
@@ -24,5 +30,7 @@ public abstract class Piece extends ChessPiece {
 		return currentLocation;
 	}
 
-
+	public List<int[]> getMoveDeltas() {
+		return deltas;
+	}
 }
