@@ -1,6 +1,6 @@
-package me.dzikimlecz.discordchess.chess.game.moveparsing;
+package me.dzikimlecz.chessapi.game.moveparsing;
 
-import me.dzikimlecz.discordchess.chess.game.movestoring.MoveData;
+import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 
 import java.util.regex.Pattern;
 

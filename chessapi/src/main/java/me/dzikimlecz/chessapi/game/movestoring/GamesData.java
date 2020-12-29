@@ -1,18 +1,11 @@
-package me.dzikimlecz.discordchess.chess.game.movestoring;
+package me.dzikimlecz.chessapi.game.movestoring;
 
-import me.dzikimlecz.discordchess.chess.game.board.Color;
-import me.dzikimlecz.discordchess.chess.game.board.Board;
-
-
-import static me.dzikimlecz.discordchess.chess.game.board.Color.*;
+import me.dzikimlecz.chessapi.game.board.Color;
+import me.dzikimlecz.chessapi.game.board.Board;
 
 public class GamesData {
 	private Board board;
 	private Color color;
-
-	public GamesData() {
-		this.color = WHITE;
-	}
 
 	public void setBoard(Board board) {
 		this.board = board;

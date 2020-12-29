@@ -1,9 +1,7 @@
-package me.dzikimlecz.discordchess.chess.game.board.pieces;
+package me.dzikimlecz.chessapi.game.board.pieces;
 
-import me.dzikimlecz.discordchess.chess.game.board.Color;
-import me.dzikimlecz.discordchess.chess.game.board.Square;
-
-import java.util.stream.IntStream;
+import me.dzikimlecz.chessapi.game.board.Color;
+import me.dzikimlecz.chessapi.game.board.Square;
 
 
 /**
@@ -12,7 +10,7 @@ import java.util.stream.IntStream;
  * @see Takeable
  */
 
-public final class Knight extends Piece implements Takeable {
+public final class Knight extends TakeablePiece {
 	
 	public Knight(Color color, Square startLocation) {
 		super(color, startLocation);
@@ -23,18 +21,15 @@ public final class Knight extends Piece implements Takeable {
 		return "N";
 	}
 
-	@Override
-	public void beTaken() {
-		currentLocation.putPiece(null);
-		currentLocation = null;
-		deltas = null;
-	}
 
+	/**
+	 * Updates move deltas, called by super after each move.
+	 */
 	@Override
-	public void moveTo(Square square) {
-		super.moveTo(square);
+	protected void updateDeltas() {
 		final int startingRow = currentLocation.getRow();
 		final int startingLine = currentLocation.getLine();
+		//all possible changes of coordinates for a knight being at the middle of the board.
 		byte[][] deltasSets =
 				{{-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}};
 		for (byte[] deltas: deltasSets) {
@@ -42,7 +37,7 @@ public final class Knight extends Piece implements Takeable {
 			byte lineDelta = deltas[1];
 			int newRow = startingRow + rowDelta;
 			int newLine = startingLine + lineDelta;
-			if (newLine >= 'a' && newLine <= 'h' && newRow >= '1' && newRow <= '8')
+			if (newLine >= 'a' && newLine <= 'h' && newRow >= 1 && newRow <= 8)
 				this.deltas.add(new int[] {newLine - startingLine, newRow - startingRow});
 		}
 	}
