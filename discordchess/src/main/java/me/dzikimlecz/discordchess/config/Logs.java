@@ -1,4 +1,4 @@
-package me.dzikimlecz.discordchess.bot.config;
+package me.dzikimlecz.discordchess.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

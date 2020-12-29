@@ -1,6 +1,6 @@
-package me.dzikimlecz.discordchess.bot.config;
+package me.dzikimlecz.discordchess.config;
 
-import me.dzikimlecz.discordchess.bot.event.AbstractEventListener;
+import me.dzikimlecz.discordchess.event.AbstractEventListener;
 
 public interface Loggable {
 	void info(Class<?> source, String msg);

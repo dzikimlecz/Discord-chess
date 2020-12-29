@@ -1,4 +1,4 @@
-package me.dzikimlecz.discordchess.bot.command;
+package me.dzikimlecz.discordchess.command;
 
 import java.util.List;
 

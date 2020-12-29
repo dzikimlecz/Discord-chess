@@ -1,7 +1,7 @@
-package me.dzikimlecz.discordchess.bot.event;
+package me.dzikimlecz.discordchess.event;
 
-import me.dzikimlecz.discordchess.bot.config.Gettable;
-import me.dzikimlecz.discordchess.bot.config.Loggable;
+import me.dzikimlecz.discordchess.config.Gettable;
+import me.dzikimlecz.discordchess.config.Loggable;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import org.jetbrains.annotations.NotNull;
 

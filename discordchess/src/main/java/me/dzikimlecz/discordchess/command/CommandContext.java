@@ -1,4 +1,4 @@
-package me.dzikimlecz.discordchess.bot.command;
+package me.dzikimlecz.discordchess.command;
 
 import me.duncte123.botcommons.commands.ICommandContext;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;

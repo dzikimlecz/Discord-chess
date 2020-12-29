@@ -1,6 +1,6 @@
-package me.dzikimlecz.discordchess.bot.command;
+package me.dzikimlecz.discordchess.command;
 
-import me.dzikimlecz.discordchess.bot.config.Gettable;
+import me.dzikimlecz.discordchess.config.Gettable;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 import javax.annotation.Nullable;
