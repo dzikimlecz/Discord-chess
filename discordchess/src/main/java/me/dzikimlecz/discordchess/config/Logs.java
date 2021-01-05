@@ -3,7 +3,7 @@ package me.dzikimlecz.discordchess.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Logs implements Loggable {
+public class Logs implements ILogs {
 	
 	private Logger logger;
 	

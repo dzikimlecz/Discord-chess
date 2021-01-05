@@ -2,7 +2,7 @@ package me.dzikimlecz.discordchess.config;
 
 import me.dzikimlecz.discordchess.event.AbstractEventListener;
 
-public interface Loggable {
+public interface ILogs {
 	void info(Class<?> source, String msg);
 	void info(Class<?> source, String msg, Object arg);
 	default void info(String msg) {
@@ -29,7 +29,7 @@ public interface Loggable {
 		info(source, msg, arg);
 	}
 	
-	default void write(Class<AbstractEventListener> source, String msg, Object arg) {
+	default void write(String msg, Object arg) {
 		info(this.getClass(), msg, arg);
 	}
 }

@@ -1,6 +1,6 @@
 package me.dzikimlecz.discordchess.command;
 
-import me.dzikimlecz.discordchess.config.Gettable;
+import me.dzikimlecz.discordchess.config.IConfig;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 import javax.annotation.Nullable;
@@ -12,9 +12,9 @@ import java.util.regex.Pattern;
 public class CommandManager {
 	
 	private final List<AbstractCommand> commands;
-	private final Gettable<String> config;
+	private final IConfig<String> config;
 	
-	public CommandManager(Gettable<String> config) {
+	public CommandManager(IConfig<String> config) {
 		this.config = config;
 		commands = new ArrayList<>();
 	}

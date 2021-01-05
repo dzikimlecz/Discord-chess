@@ -1,5 +1,5 @@
 package me.dzikimlecz.discordchess.config;
 
-public interface Gettable<E> {
+public interface IConfig<E> {
 	E get(String key);
 }

@@ -2,13 +2,18 @@ package me.dzikimlecz.discordchess.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-public class Config implements Gettable<String> {
-	private static final Dotenv dotenv;
+public class Config implements IConfig<String> {
+	private final Dotenv dotenv;
 	
-	static {
+	public Config() {
 		dotenv = Dotenv.load();
 	}
+
 	public String get(String key) {
-		return dotenv.get(key.toUpperCase());
+		key = key.toUpperCase();
+		if (key.equals("PREFIX")) {
+			return dotenv.get("DEFAULT_PREFIX");
+		}
+		return dotenv.get(key);
 	}
 }

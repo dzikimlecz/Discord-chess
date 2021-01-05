@@ -1,6 +1,7 @@
 build/
 gradle/
 res/
+*.env
 .env
 gradlew
 gradlew.bat

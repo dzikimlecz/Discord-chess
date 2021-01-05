@@ -1,22 +1,18 @@
 package me.dzikimlecz.discordchess.event;
 
-import me.dzikimlecz.discordchess.config.Gettable;
-import me.dzikimlecz.discordchess.config.Loggable;
+import me.dzikimlecz.discordchess.config.IConfig;
+import me.dzikimlecz.discordchess.config.ILogs;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 public class EventListeners extends ListenerAdapter {
-	private final Gettable<String> config;
-	private final Loggable logs;
+
+	private final OnReadyListener onReadyListener;
+	private final MessagesListener messagesListener;
 	
-	private OnReadyListener onReadyListener;
-	private MessagesListener messagesListener;
-	
-	public EventListeners(Gettable<String> config, Loggable logs) {
-		this.config = config;
-		this.logs = logs;
+	public EventListeners(IConfig<String> config, ILogs logs) {
 		onReadyListener = new OnReadyListener(config, logs);
 		messagesListener = new MessagesListener(config, logs);
 	}
