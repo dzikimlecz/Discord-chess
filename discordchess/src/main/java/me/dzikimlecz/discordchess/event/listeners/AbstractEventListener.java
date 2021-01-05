@@ -1,9 +1,8 @@
-package me.dzikimlecz.discordchess.event;
+package me.dzikimlecz.discordchess.event.listeners;
 
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
-import me.dzikimlecz.discordchess.command.CommandManager;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import me.dzikimlecz.discordchess.event.CommandManager;
 
 public abstract class AbstractEventListener {
 	

@@ -1,6 +1,8 @@
-package me.dzikimlecz.discordchess.command;
+package me.dzikimlecz.discordchess.event;
 
+import me.dzikimlecz.discordchess.event.commands.AbstractCommand;
 import me.dzikimlecz.discordchess.config.IConfig;
+import me.dzikimlecz.discordchess.util.CommandContext;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 import javax.annotation.Nullable;

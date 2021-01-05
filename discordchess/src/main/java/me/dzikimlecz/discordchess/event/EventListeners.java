@@ -2,6 +2,8 @@ package me.dzikimlecz.discordchess.event;
 
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
+import me.dzikimlecz.discordchess.event.listeners.MessagesListener;
+import me.dzikimlecz.discordchess.event.listeners.OnReadyListener;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

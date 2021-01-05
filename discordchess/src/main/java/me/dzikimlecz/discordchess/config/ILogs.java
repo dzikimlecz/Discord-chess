@@ -1,7 +1,5 @@
 package me.dzikimlecz.discordchess.config;
 
-import me.dzikimlecz.discordchess.event.AbstractEventListener;
-
 public interface ILogs {
 	void info(Class<?> source, String msg);
 	void info(Class<?> source, String msg, Object arg);

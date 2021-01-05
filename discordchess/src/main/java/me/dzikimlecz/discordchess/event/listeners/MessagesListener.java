@@ -1,13 +1,9 @@
-package me.dzikimlecz.discordchess.event;
+package me.dzikimlecz.discordchess.event.listeners;
 
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Locale;
 
 public class MessagesListener extends AbstractEventListener {
 	

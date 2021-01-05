@@ -1,4 +1,4 @@
-package me.dzikimlecz.discordchess.event;
+package me.dzikimlecz.discordchess.event.listeners;
 
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
