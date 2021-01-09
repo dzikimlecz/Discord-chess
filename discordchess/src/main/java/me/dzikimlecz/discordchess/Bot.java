@@ -11,7 +11,8 @@ public class Bot {
 	public static void main(String[] args) throws Exception {
 		var config = new Config();
 		var logs = new Logs();
-		JDABuilder.createLight(config.get("token"))
+
+		JDABuilder.createDefault(config.get("token"))
 				.addEventListeners(new EventListeners(config, logs))
 				.setActivity(Activity.playing("chess"))
 				.build();
