@@ -1,5 +1,6 @@
 package me.dzikimlecz.discordchess.event;
 
+import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.event.commands.AbstractCommand;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.util.CommandContext;
@@ -15,9 +16,11 @@ public class CommandManager {
 	
 	private final List<AbstractCommand> commands;
 	private final IConfig<String> config;
+	private final ILogs logs;
 	
-	public CommandManager(IConfig<String> config) {
+	public CommandManager(IConfig<String> config, ILogs logs) {
 		this.config = config;
+		this.logs = logs;
 		commands = new ArrayList<>();
 	}
 	
