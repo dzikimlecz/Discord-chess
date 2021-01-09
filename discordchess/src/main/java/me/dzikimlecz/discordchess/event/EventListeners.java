@@ -13,10 +13,12 @@ public class EventListeners extends ListenerAdapter {
 
 	private final OnReadyListener onReadyListener;
 	private final MessagesListener messagesListener;
+	private final CommandManager manager;
 	
 	public EventListeners(IConfig<String> config, ILogs logs) {
-		onReadyListener = new OnReadyListener(config, logs);
-		messagesListener = new MessagesListener(config, logs);
+		manager = new CommandManager(config, logs);
+		onReadyListener = new OnReadyListener(config, logs, manager);
+		messagesListener = new MessagesListener(config, logs, manager);
 	}
 	
 	@Override
