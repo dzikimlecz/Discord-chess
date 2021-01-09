@@ -6,14 +6,14 @@ import me.dzikimlecz.discordchess.event.CommandManager;
 
 public abstract class AbstractEventListener {
 	
-	protected final CommandManager manager;
 	protected final IConfig<String> config;
 	protected final ILogs logs;
+	protected final CommandManager commandManager;
 	
-	public AbstractEventListener(IConfig<String> config, ILogs logs) {
-		manager = new CommandManager(config);
+	public AbstractEventListener(IConfig<String> config, ILogs logs, CommandManager manager) {
 		this.config = config;
 		this.logs = logs;
+		this.commandManager = manager;
 	}
 	
 }
