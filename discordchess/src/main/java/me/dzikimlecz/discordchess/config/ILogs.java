@@ -18,15 +18,16 @@ public interface ILogs {
 	default void error(String msg) {
 		error(this.getClass(), msg);
 	}
-	
+
+	default void write(String msg) {
+		info(msg);
+	}
 	default void write(String msg, Class<?> source) {
 		info(source, msg);
 	}
-	
 	default void write(String msg, Class<?> source, Object arg) {
 		info(source, msg, arg);
 	}
-	
 	default void write(String msg, Object arg) {
 		info(this.getClass(), msg, arg);
 	}
