@@ -26,11 +26,11 @@ public class CommandManager {
 	
 	public void addCommand(AbstractCommand cmd) {
 		boolean nameFound =
-				commands.stream().anyMatch((it) -> it.getName().equalsIgnoreCase(cmd.getName()));
+				commands.stream().anyMatch((it) -> it.name().equalsIgnoreCase(cmd.name()));
 		if (nameFound) throw new IllegalArgumentException("Command already present");
-		for (String alias : cmd.getAliases()) {
+		for (String alias : cmd.aliases()) {
 			boolean aliasesMatch =
-					commands.stream().anyMatch((it) -> it.getAliases().contains(alias));
+					commands.stream().anyMatch((it) -> it.aliases().contains(alias));
 			if (aliasesMatch) throw new IllegalArgumentException(
 						String.format("Command with alias %s already present.", alias));
 		}
@@ -45,7 +45,7 @@ public class CommandManager {
 	public AbstractCommand getCommand(String search) {
 		String searchLower = search.toLowerCase();
 		for (AbstractCommand command : commands)
-			if (command.getName().equals(searchLower) || command.getAliases().contains(searchLower))
+			if (command.name().equals(searchLower) || command.aliases().contains(searchLower))
 				return command;
 		return null;
 	}

@@ -9,6 +9,8 @@ import java.util.List;
 
 public abstract class AbstractCommand {
 
+	protected String name;
+	protected List<String> aliases;
 	protected final IConfig<String> config;
 	protected final ILogs logs;
 	protected final CommandHelpData help;
@@ -16,18 +18,20 @@ public abstract class AbstractCommand {
 	public AbstractCommand(IConfig<String> config, ILogs logs) {
 		this.config = config;
 		this.logs = logs;
-		help = new CommandHelpData(getName(), getAliases(), "");
+		help = new CommandHelpData(name(), aliases(), "");
 	}
 
 	public abstract void handle(CommandContext context);
 	
-	public abstract String getName();
+	public String name() {
+		return name;
+	}
 	
-	public CommandHelpData getHelp() {
+	public CommandHelpData help() {
 		return help;
 	}
 	
-	public List<String> getAliases() {
+	public List<String> aliases() {
 		return List.of();
 	}
 	
