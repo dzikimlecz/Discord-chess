@@ -48,13 +48,19 @@ public class ChessImageProcessor {
 				ChessPiece piece = chessPieces[x];
 				var color = ((y % 2) == (x % 2)) ? Color.BLACK : Color.WHITE;
 				var squareImage = generateSquareImage(piece, color);
-				var rgb = new int[SQUARE_SIDE_LENGTH * SQUARE_SIDE_LENGTH];
-				squareImage.getRGB(0, 0, SQUARE_SIDE_LENGTH, SQUARE_SIDE_LENGTH,
-				                   rgb, 0, 1);
-				boardImage.setRGB(x * SQUARE_SIDE_LENGTH,
-				                  y * SQUARE_SIDE_LENGTH,
-				                  SQUARE_SIDE_LENGTH, SQUARE_SIDE_LENGTH,
-				                  rgb, 0, 1);
+				int squareStartX = x * SQUARE_SIDE_LENGTH;
+				int squareStartY = y * SQUARE_SIDE_LENGTH;
+				for (int copyingY = 0; copyingY < SQUARE_SIDE_LENGTH; copyingY++) {
+					for (int copyingX = 0; copyingX < SQUARE_SIDE_LENGTH; copyingX++) {
+						var rgb = squareImage.getRGB(copyingX, copyingY);
+						boardImage.setRGB(
+								squareStartX + copyingX,
+								squareStartY + copyingY,
+								rgb
+						);
+					}
+				}
+
 			}
 		}
 		return boardImage;
@@ -72,7 +78,7 @@ public class ChessImageProcessor {
 			for (int x = 0; x < SQUARE_SIDE_LENGTH; x++) {
 				int rgb = pieceImage.getRGB(x, y);
 				var alpha = rgb / 10E6;
-				int rgbToInsert = (alpha != 0) ? rgb : squareBackground.getRGB(x, y);
+				int rgbToInsert = (alpha == 0) ? squareBackground.getRGB(x, y) : rgb;
 				bufferedImage.setRGB(x, y, rgbToInsert);
 			}
 		}
@@ -80,7 +86,7 @@ public class ChessImageProcessor {
 	}
 
 	private BufferedImage getPieceImage(@NotNull ChessPiece piece) {
-		final String pathNotFilled = "pieces/pngs/{0}/{1}.png";
+		final String pathNotFilled = "src/main/resources/pieces/pngs/{0}/{1}.png";
 		var color = piece.color().name().toLowerCase();
 		var name  = switch (piece.toString()) {
 			case "P" -> "pawn";
@@ -93,8 +99,7 @@ public class ChessImageProcessor {
 		};
 		var path = MessageFormat.format(pathNotFilled, color, name);
 		try {
-			var input = new File("pieces\\pngs\\white\\rook.png");
-			System.out.println(input.exists());
+			var input = new File(path);
 			return ImageIO.read(input);
 		} catch(Exception e) {
 			e.printStackTrace();
