@@ -5,6 +5,8 @@ import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.game.ChessGameManager;
 import me.dzikimlecz.discordchess.util.CommandContext;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -16,9 +18,7 @@ public class GameForceStopCommand extends ChessCommand {
 
 
 	public GameForceStopCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
-		super(config, logs, manager);
-		name = "gamestop";
-		aliases = List.of("gs");
+		super("gamestop", List.of("gs"), config, logs, manager);
 		help.setCmdInfo("Mod-only command. Forces end of the game on the channel. " +
 				              "(options may be used to set timeout of closure)");
 		help.setUsage(MessageFormat.format(
@@ -34,29 +34,36 @@ public class GameForceStopCommand extends ChessCommand {
 	public void handle(CommandContext context) {
 		var member = context.getMember();
 		var channel = context.getChannel();
-		boolean permissionGranted = member.isOwner()
-				|| member.hasPermission(Permission.MANAGE_SERVER)
-				|| member.getId().equals(config.get("owner id"));
-		if (!permissionGranted) {
+		if (!checkPermissions(member)) {
 			channel.sendMessage("You don't have permission to do this!").queue();
 			return;
 		}
 		var args = context.getArgs();
-		if (args.size() <= 0) gamesManager.forceClose(channel);
+		if (args.isEmpty()) closeOnTimeOut(channel, "0");
 		else if (args.get(0).equals("-w"))
 			try {
-				var arg1 = args.get(1).replace(',', '.');
-				var timeout = Double.parseDouble(arg1);
-				new Timer().schedule(new TimerTask() {
-					public void run() {
-						gamesManager.forceClose(channel);
-					}
-				}, (long) (timeout * 1E3));
+				closeOnTimeOut(channel, args.get(1));
 			} catch(IndexOutOfBoundsException | NumberFormatException e) {
-				channel.sendMessage("Usage: " + help.usage()).queue();
+				sendUsage(channel);
 			}
 		else if (args.get(0).startsWith("-"))
-			channel.sendMessage("Usage: " + help.usage()).queue();
+			sendUsage(channel);
+		else closeOnTimeOut(channel, "0");
+	}
+
+	private void closeOnTimeOut(TextChannel channel, String arg) {
+		var timeout = Double.parseDouble(arg.replace(',', '.'));
+		new Timer().schedule(new TimerTask() {
+			public void run() {
+				gamesManager.forceClose(channel);
+			}
+		}, (long) (timeout * 1E3));
+	}
+
+	private boolean checkPermissions(Member member) {
+		return member.isOwner()
+				|| member.hasPermission(Permission.MANAGE_SERVER)
+				|| member.getId().equals(config.get("owner id"));
 	}
 
 }
