@@ -61,11 +61,11 @@ public class CommandHelpData {
 	@Override
 	public String toString() {
 		var builder = new StringBuilder();
-		builder.append("Command: ").append(name).append('\n')
-				.append("Aliases: ").append('\n');
+		builder.append("`Command:` ").append(name).append('\n')
+				.append("`Aliases:` ").append('\n');
 		aliases.forEach(alias -> builder.append('\t').append(alias).append('\n'));
-		builder.append("Info: ").append(cmdInfo).append('\n')
-				.append("Usage: ").append(usage);
+		builder.append("`Info:` ").append(cmdInfo).append('\n')
+				.append("`Usage:` ").append(usage).append('\n');
 		return builder.toString();
 	}
 
