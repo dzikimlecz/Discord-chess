@@ -3,6 +3,7 @@ package me.dzikimlecz.discordchess.event.listeners;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.event.CommandManager;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,8 +17,7 @@ public class MessagesListener extends AbstractEventListener {
 		String rawMessage = event.getMessage().getContentRaw();
 		if (rawMessage.startsWith(config.get("prefix")))
 			commandManager.handle(event);
-		else if (rawMessage.toLowerCase().contains("szachy")) {
-
-		}
+		else if (rawMessage.toLowerCase().contains("szachy"))
+			event.getMessage().reply(new MessageBuilder().append("Szachy są kul").build()).queue();
 	}
 }
