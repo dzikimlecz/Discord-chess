@@ -8,7 +8,6 @@ import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.discordchess.config.IConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Nullable;

@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GameInitCommand extends ChessCommand {

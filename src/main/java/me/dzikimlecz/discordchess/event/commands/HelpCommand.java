@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import java.awt.Color;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class HelpCommand extends AbstractCommand {
