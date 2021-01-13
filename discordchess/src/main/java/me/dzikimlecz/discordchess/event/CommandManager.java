@@ -25,27 +25,27 @@ public class CommandManager {
 	}
 	
 	public void addCommand(AbstractCommand cmd) {
-		boolean nameFound =
-				commands.stream().anyMatch((it) -> it.name().equalsIgnoreCase(cmd.name()));
+		boolean nameFound = commands.stream()
+				.anyMatch((it) -> it.name().equalsIgnoreCase(cmd.name()));
 		if (nameFound) throw new IllegalArgumentException("Command already present");
-		for (String alias : cmd.aliases()) {
-			boolean aliasesMatch =
-					commands.stream().anyMatch((it) -> it.aliases().contains(alias));
+		cmd.aliases().forEach(alias -> {
+			boolean aliasesMatch = commands.stream()
+					.anyMatch((it) -> it.aliases().contains(alias));
 			if (aliasesMatch) throw new IllegalArgumentException(
-						String.format("Command with alias %s already present.", alias));
-		}
+					String.format("Command with alias: %s already present.", alias));
+		});
 		commands.add(cmd);
 	}
 	
 	public void addCommands(AbstractCommand... commands) {
-		for (AbstractCommand command : commands) addCommand(command);
+		Arrays.stream(commands).forEachOrdered(this::addCommand);
 	}
 	
 	@Nullable
 	public AbstractCommand getCommand(String search) {
-		String searchLower = search.toLowerCase();
 		for (AbstractCommand command : commands)
-			if (command.name().equals(searchLower) || command.aliases().contains(searchLower))
+			if (command.name().equalsIgnoreCase(search) ||
+			    command.aliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(search)))
 				return command;
 		return null;
 	}
@@ -54,12 +54,11 @@ public class CommandManager {
 		String[] split = event.getMessage().getContentRaw().replaceFirst(
 						"(?i)" + Pattern.quote(config.get("prefix")), "")
 						.split("\\s+");
-		String invoke = split[0].toLowerCase();
-		AbstractCommand cmd = getCommand(invoke);
+		String commandName = split[0].toLowerCase();
+		var cmd = getCommand(commandName);
 		if (cmd == null) return;
 		List<String> args = Arrays.asList(split).subList(1, split.length);
-		var ctx = new CommandContext(event, args);
-		cmd.handle(ctx);
+		cmd.handle(new CommandContext(event, args));
 	}
 	
 	public List<AbstractCommand> commands() {
