@@ -9,13 +9,6 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = JavaVersion.VERSION_15
 
-sourceSets {
-    main({
-        java {
-            srcDirs 'src\\main\\java'
-        }
-    })
-}
 
 mainClassName = 'me.dzikimlecz.discordchess.Bot'
 
