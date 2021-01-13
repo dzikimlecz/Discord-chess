@@ -7,17 +7,24 @@ import me.dzikimlecz.chessapi.GamesManager;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.discordchess.config.IConfig;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
 import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class GameEventHandler implements ChessEventListener {
 	private final GameInfo<TextChannel, User> gameInfo;
 	private final TextChannel channel;
 	private final GamesManager<TextChannel> manager;
 	private final IConfig<String> config;
+	private final BlockingQueue<Boolean> responseContainer;
+	private Color drawRequester;
 
 	public GameEventHandler(GameInfo<TextChannel, User> gameInfo,
 	                        GamesManager<TextChannel> manager,
@@ -26,21 +33,23 @@ public class GameEventHandler implements ChessEventListener {
 		channel = gameInfo.getKey();
 		this.manager = manager;
 		this.config = config;
+		this.responseContainer = new ArrayBlockingQueue<>(1);
 	}
 
 	@Override
 	public void onMoveHandled() {
 		var pieces = manager.read(channel);
-		var builder = new StringBuilder();
+		var builder = new EmbedBuilder();
+		builder.setTitle("Game");
 		for (ChessPiece[] piecesRow : pieces) {
 			for (ChessPiece piece : piecesRow) {
-				if (piece == null) builder.append(" ".repeat(3));
-				else builder.append(piece.color().name().charAt(0))
-						.append(piece.toString()).append(' ');
+				if (piece == null) builder.appendDescription(" ".repeat(3));
+				else builder.appendDescription(String.valueOf(piece.color().name().charAt(0)))
+						.appendDescription(piece.toString()).appendDescription(" ");
 			}
-			channel.sendMessage(builder.toString()).queue();
-			builder.setLength(0);
+			builder.appendDescription("\n");
 		}
+		channel.sendMessage(builder.build()).queue();
 	}
 
 	@Override
@@ -49,15 +58,19 @@ public class GameEventHandler implements ChessEventListener {
 	}
 
 	@Override
-	public boolean onDrawRequest(Color requestor) {
-		long lastRequestTime = System.currentTimeMillis();
-		User requestingPlayer = gameInfo.getPlayer(requestor);
+	public boolean onDrawRequest(Color requester) {
+		drawRequester = requester;
+		User requestingPlayer = gameInfo.getPlayer(requester);
 		channel.sendMessage(requestingPlayer.getAsTag() + " requests a draw!").queue();
 		channel.sendMessage(MessageFormat.format(
 				"Send \"{0}draw accept\", or \"{0}draw deny\"",
 				config.get("prefix")
 		)).queue();
-		return false;
+		try {
+			return responseContainer.take();
+		} catch(InterruptedException e) {
+			return false;
+		}
 	}
 
 	@Override
@@ -75,5 +88,19 @@ public class GameEventHandler implements ChessEventListener {
 	public void onDraw(DrawReason drawReason) {
 		channel.sendMessage("That is a draw!").queue();
 		manager.close(channel);
+	}
+
+	public void replyToDraw(boolean accept) {
+		try {
+			responseContainer.put(accept);
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+		}
+		drawRequester = null;
+	}
+
+	@Nullable
+	public Color drawRequester() {
+		return drawRequester;
 	}
 }
