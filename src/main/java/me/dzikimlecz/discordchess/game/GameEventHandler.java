@@ -3,36 +3,56 @@ package me.dzikimlecz.discordchess.game;
 import me.dzikimlecz.chessapi.ChessEventListener;
 import me.dzikimlecz.chessapi.DrawReason;
 import me.dzikimlecz.chessapi.GameInfo;
-import me.dzikimlecz.chessapi.GamesManager;
 import me.dzikimlecz.chessapi.game.board.Color;
-import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
+import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.discordchess.config.IConfig;
+import me.dzikimlecz.discordchess.config.ILogs;
+import me.dzikimlecz.discordchess.config.Resources;
+import me.dzikimlecz.discordchess.util.ChessImageProcessor;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Nullable;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class GameEventHandler implements ChessEventListener {
 	private final GameInfo<TextChannel, User> gameInfo;
 	private final TextChannel channel;
-	private final GamesManager<TextChannel> manager;
+	private final ChessGameManager manager;
 	private final IConfig<String> config;
-	private final BlockingQueue<Boolean> responseContainer;
+	private final ILogs logs;
+	private final BlockingQueue<Boolean> drawResponseContainer;
+	private final BlockingQueue<String> exchangeResponseContainer;
+	private final ChessImageProcessor imageProcessor;
 	private Color drawRequester;
+	private Color exchangingPlayer;
 
 	public GameEventHandler(GameInfo<TextChannel, User> gameInfo,
-	                        GamesManager<TextChannel> manager,
-	                        IConfig<String> config) {
+	                        ChessGameManager manager,
+	                        IConfig<String> config,
+	                        ILogs logs) {
 		this.gameInfo = gameInfo;
 		channel = gameInfo.getKey();
 		this.manager = manager;
 		this.config = config;
-		this.responseContainer = new ArrayBlockingQueue<>(1);
+		this.logs = logs;
+		this.drawResponseContainer = new ArrayBlockingQueue<>(1);
+		this.exchangeResponseContainer = new ArrayBlockingQueue<>(1);
+		imageProcessor = new ChessImageProcessor(new Resources());
 	}
 
 	@Override
@@ -58,6 +78,7 @@ public class GameEventHandler implements ChessEventListener {
 
 	@Override
 	public boolean onDrawRequest(Color requester) {
+		drawResponseContainer.clear();
 		drawRequester = requester;
 		User requestingPlayer = gameInfo.getPlayer(requester);
 		channel.sendMessage(requestingPlayer.getAsTag() + " requests a draw!").queue();
@@ -66,7 +87,7 @@ public class GameEventHandler implements ChessEventListener {
 				config.get("prefix")
 		)).queue();
 		try {
-			return responseContainer.take();
+			return drawResponseContainer.take();
 		} catch(InterruptedException e) {
 			return false;
 		}
