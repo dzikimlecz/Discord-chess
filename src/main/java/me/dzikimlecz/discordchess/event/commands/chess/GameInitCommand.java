@@ -3,6 +3,7 @@ package me.dzikimlecz.discordchess.event.commands.chess;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.config.Resources;
+import me.dzikimlecz.discordchess.event.commands.ImageSender;
 import me.dzikimlecz.discordchess.game.ChessGameManager;
 import me.dzikimlecz.discordchess.util.ChessImageProcessor;
 import me.dzikimlecz.discordchess.util.CommandContext;
@@ -29,6 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class GameInitCommand extends ChessCommand {
 
 	private final ChessImageProcessor imageProcessor;
+	private final ImageSender imageSender;
 
 	public GameInitCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
 		super("chess", List.of("gameinit"), config, logs, manager);
@@ -40,6 +42,7 @@ public class GameInitCommand extends ChessCommand {
 						chosen color: -black(-b), -white(-w), -random(-rand, -r)(default: -rand)]"""
 				, config.get("prefix"), name()));
 		imageProcessor = new ChessImageProcessor(new Resources());
+		imageSender = new ImageSender();
 	}
 
 	@Override
@@ -92,32 +95,13 @@ public class GameInitCommand extends ChessCommand {
 	private void sendBoard(TextChannel channel) {
 		var image = imageProcessor.generateImageOfBoard(gamesManager.read(channel));
 		try {
-			sendImage(image, channel);
+			imageSender.sendImage(image, channel, "Game Started!");
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static void sendImage(BufferedImage image, TextChannel channel) throws IOException {
-		String fileName =
-				MessageFormat.format("{0}{1}.png",
-				                     LocalDateTime.now().format(DateTimeFormatter.ISO_TIME)
-						                     .replaceAll("[:+]", "_"),
-				                     ThreadLocalRandom.current().nextInt(100));
-		var temp = new File("temp", fileName);
-		var embed = new EmbedBuilder();
-		embed.setTitle("Moved!");
-		ImageIO.write(image, "png", temp);
-		var file = new FileInputStream(temp);
-		embed.setImage("attachment://board.png");
-		channel.sendFile(file, "board.png").embed(embed.build()).queue();
-		new Timer().schedule(new TimerTask() {
-			@Override
-			public void run() {
-				temp.delete();
-			}
-		}, 500);
-	}
+
 
 	@Nullable
 	private User getOpponent(TextChannel channel, String opponentTag) {
