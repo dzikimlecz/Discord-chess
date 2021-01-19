@@ -165,7 +165,16 @@ public class GameEventHandler implements ChessEventListener {
 
 	@Override
 	public void onDraw(DrawReason drawReason) {
-		channel.sendMessage("That is a draw!").queue();
+		var message = new MessageBuilder();
+		message.append("That's a draw!\n");
+		switch (drawReason) {
+			case STALE_MATE -> message.append("You've got stale mated!");
+			case TRIPLE_POSITION_REPEAT -> message.append("Position was repeated!");
+			case FIFTY_MOVES_WITHOUT_PAWN -> message.append("Pawns weren't used for so long! ")
+					.append("(50 moves)");
+			case LACK_OF_PIECES -> message.append("That's not possible to mate for you!");
+		}
+		channel.sendMessage(message.build()).queue();
 		manager.close(channel);
 	}
 
