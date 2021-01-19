@@ -4,9 +4,15 @@ import me.duncte123.botcommons.BotCommons;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.util.CommandContext;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ShutdownCommand extends AbstractCommand {
 
@@ -19,14 +25,36 @@ public class ShutdownCommand extends AbstractCommand {
 	@Override
 	public void handle(CommandContext context) {
 		var author = context.getAuthor();
+		var channel = context.getChannel();
 		if (!author.getId().equals(config.get("owner id"))) {
-			context.getChannel().sendMessage("You don't have permission to do this").queue();
+			channel.sendMessage("You don't have permission to do this").queue();
 			return;
 		}
-		logs.write("Shutting down.", ShutdownCommand.class);
 		var jda = context.getJDA();
-		jda.shutdown();
-		BotCommons.shutdown(jda);
+		var args = context.getArgs();
+		if (args.isEmpty()) closeOnTimeOut(jda,"0");
+		else if (args.get(0).equals("-w"))
+			try {
+				closeOnTimeOut(jda, args.get(1));
+			} catch(IndexOutOfBoundsException | NumberFormatException e) {
+				sendUsage(channel);
+			}
+		else if (args.get(0).startsWith("-"))
+			sendUsage(channel);
+		else closeOnTimeOut(jda, "0");
 	}
 
+	private void closeOnTimeOut(JDA jda, String arg) {
+		var timeout = Double.parseDouble(arg.replace(',', '.'));
+		var msg = new StringBuilder("Shutting down");
+		if (timeout != 0)
+			msg.append("in ").append(timeout).append("s");
+		logs.write(msg.toString(), ShutdownCommand.class);
+		new Timer().schedule(new TimerTask() {
+			public void run() {
+				BotCommons.shutdown(jda);
+				jda.shutdownNow();
+			}
+		}, (long) (timeout * 1E3));
+	}
 }
