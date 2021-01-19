@@ -108,6 +108,49 @@ public class GameEventHandler implements ChessEventListener {
 		}
 	}
 
+	@Nullable
+	@Override
+	public Class<? extends Piece> onPawnExchange() {
+		drawResponseContainer.clear();
+		var color = manager.getTurn(channel);
+		exchangingPlayer = color;
+		var player = gameInfo.getPlayer(color);
+		var msg = new MessageBuilder();
+		msg.append(player.getAsMention()).append(" has a pawn to exchange!\n")
+				.append(MessageFormat.format("Send \"{0}pex\" + name of piece, or its notation",
+			                             config.get("prefix")));
+		channel.sendMessage(msg.build()).queue();
+		String response;
+		while (true) {
+			try {
+				response = exchangeResponseContainer.take();
+			} catch(InterruptedException e) {
+				return null;
+			}
+			switch (response.toLowerCase()) {
+				case "p", "pawn", "pionek" -> {
+					return Pawn.class;
+				}
+				case "s", "n", "knight", "skoczek" -> {
+					return Knight.class;
+				}
+				case "g", "b", "goniec", "bishop" -> {
+					return Bishop.class;
+				}
+				case "w", "r", "wieża", "wieza", "rook" -> {
+					return Rook.class;
+				}
+				case "h", "q", "hetman", "dama", "krolowa", "królowa", "queen" -> {
+					return Queen.class;
+				}
+				case "k", "król", "krol", "king" -> {
+					return King.class;
+				}
+				default -> channel.sendMessage("There is no piece of name " + response).queue();
+			}
+		}
+	}
+
 	@Override
 	public void onMate(Color winner) {
 		gameInfo.setWinner(winner);
@@ -127,15 +170,28 @@ public class GameEventHandler implements ChessEventListener {
 
 	public void replyToDraw(boolean accept) {
 		try {
-			responseContainer.put(accept);
+			drawResponseContainer.put(accept);
 		} catch(InterruptedException e) {
 			e.printStackTrace();
 		}
 		drawRequester = null;
 	}
 
+	public void replyToExchange(String piece) {
+		try {
+			exchangeResponseContainer.put(piece);
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+		}
+		exchangingPlayer = null;
+	}
+
 	@Nullable
 	public Color drawRequester() {
 		return drawRequester;
+	}
+
+	public Color exchangingPlayer() {
+		return exchangingPlayer;
 	}
 }

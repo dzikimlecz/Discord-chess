@@ -9,7 +9,6 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = JavaVersion.VERSION_15
 
-
 mainClassName = 'me.dzikimlecz.discordchess.Bot'
 
 repositories {
@@ -24,7 +23,7 @@ dependencies {
     implementation group: 'me.duncte123', name: 'botCommons', version: '2.0.122'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     implementation group: 'io.github.cdimascio', name: 'dotenv-java', version: '2.2.0'
-    implementation files('C:\\dev\\java\\libs\\chessapi-1.1.jar')
+    implementation files('C:\\dev\\java\\libs\\chessapi-1.1.1.jar')
 }
 
 test {
