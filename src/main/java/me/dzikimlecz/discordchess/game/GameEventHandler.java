@@ -28,6 +28,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GameEventHandler implements ChessEventListener {
 	private final GameInfo<TextChannel, User> gameInfo;
@@ -66,8 +67,11 @@ public class GameEventHandler implements ChessEventListener {
 	}
 
 	private static void sendImage(BufferedImage image, TextChannel channel) throws IOException {
-		String fileName = LocalDateTime.now().format(DateTimeFormatter.ISO_TIME)
-				.replaceAll("[:+]", "_")  + ".png";
+		String fileName =
+				MessageFormat.format("{0}{1}.png",
+				                     LocalDateTime.now().format(DateTimeFormatter.ISO_TIME)
+						                     .replaceAll("[:+]", "_"),
+				                     ThreadLocalRandom.current().nextInt(100));
 		var temp = new File("temp", fileName);
 		var embed = new EmbedBuilder();
 		embed.setTitle("Moved!");
