@@ -85,7 +85,10 @@ public class GameEventHandler implements ChessEventListener {
 
 	@Override
 	public void onIllegalMove() {
-		channel.sendMessage("That isn't an appropriate move!").queue();
+		MessageBuilder msg = new MessageBuilder();
+		msg.append("Sorry this move isn't clear for me ")
+				.append(new Activity.Emoji(":pensive:"));
+		channel.sendMessage(msg.build()).queue();
 	}
 
 	@Override
