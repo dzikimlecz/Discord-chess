@@ -6,6 +6,8 @@ import me.dzikimlecz.discordchess.event.CommandManager;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+
 public class OnReadyListener extends AbstractEventListener {
 	
 	public OnReadyListener(IConfig<String> config, ILogs logs, CommandManager manager) {
@@ -15,5 +17,7 @@ public class OnReadyListener extends AbstractEventListener {
 
 	public void onReady(@NotNull ReadyEvent event) {
 		logs.write( "{} is ready.", event.getJDA().getSelfUser().getAsTag());
+		var temps = new File("temp");
+		if (!temps.exists()) temps.mkdir();
 	}
 }
