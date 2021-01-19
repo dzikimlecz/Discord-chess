@@ -154,10 +154,11 @@ public class GameEventHandler implements ChessEventListener {
 	@Override
 	public void onMate(Color winner) {
 		gameInfo.setWinner(winner);
+		assert gameInfo.getWinner() != null && gameInfo.getLoser() != null;
 		channel.sendMessage(MessageFormat.format(
 				"{0} has defeated {1}! GG!",
-				Objects.requireNonNull(gameInfo.getWinner()).getAsTag(),
-				Objects.requireNonNull(gameInfo.getLoser()).getAsTag()
+				gameInfo.getWinner().getAsMention(),
+				gameInfo.getLoser().getAsMention()
 		)).queue();
 		manager.close(channel);
 	}
