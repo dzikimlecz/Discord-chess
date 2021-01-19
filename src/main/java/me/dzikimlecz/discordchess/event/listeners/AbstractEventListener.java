@@ -15,5 +15,4 @@ public abstract class AbstractEventListener {
 		this.logs = logs;
 		this.commandManager = manager;
 	}
-	
 }

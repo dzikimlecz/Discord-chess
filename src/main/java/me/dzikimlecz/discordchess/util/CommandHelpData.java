@@ -81,4 +81,6 @@ public class CommandHelpData {
 	public int hashCode() {
 		return Objects.hash(name, aliases, cmdInfo);
 	}
+
+
 }

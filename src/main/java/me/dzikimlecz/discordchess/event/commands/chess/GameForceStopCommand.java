@@ -65,5 +65,4 @@ public class GameForceStopCommand extends ChessCommand {
 				|| member.hasPermission(Permission.MANAGE_SERVER)
 				|| member.getId().equals(config.get("owner id"));
 	}
-
 }

@@ -58,5 +58,4 @@ public class CommandContext implements ICommandContext {
 	public List<String> getArgs() {
 		return args;
 	}
-	
 }
