@@ -6,11 +6,14 @@ import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.game.ChessGameManager;
 import me.dzikimlecz.discordchess.util.CommandContext;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 public class DrawRequestCommand extends ChessCommand {
 	public DrawRequestCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
 		super("drawreq", List.of("reqdraw", "rd", "dr"), config, logs, manager);
+		help.setCmdInfo("Command used for requesting a draw during a chess game");
+		help.setUsage(MessageFormat.format("{0}{1}", config.get("prefix"), name()));
 	}
 
 	@Override

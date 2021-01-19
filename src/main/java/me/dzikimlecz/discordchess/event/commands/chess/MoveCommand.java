@@ -9,12 +9,15 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 public class MoveCommand extends ChessCommand {
 
 	public MoveCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
 		super("move", List.of("mv", "m"), config, logs, manager);
+		help.setCmdInfo("Command used for performing a move during a chess game");
+		help.setUsage(MessageFormat.format("{0}{1} + move notation", config.get("prefix"), name()));
 	}
 
 	@Override

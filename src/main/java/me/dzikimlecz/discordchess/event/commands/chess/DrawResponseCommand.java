@@ -9,11 +9,16 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 public class DrawResponseCommand extends ChessCommand {
 	public DrawResponseCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
 		super("draw", List.of("drs, rsd"), config, logs, manager);
+		help.setCmdInfo("Command used for responding to a draw request");
+		help.setUsage(MessageFormat.format("{0}{1} + \"accept\", or\"deny\"",
+		                                   config.get("prefix"),
+		                                   name()));
 
 	}
 

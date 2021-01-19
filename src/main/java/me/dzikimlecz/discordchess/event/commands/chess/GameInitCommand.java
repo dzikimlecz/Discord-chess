@@ -17,11 +17,14 @@ import java.util.concurrent.ThreadLocalRandom;
 public class GameInitCommand extends ChessCommand {
 
 	public GameInitCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
-		super("play", List.of("chess", "gameinit"), config, logs, manager);
+		super("chess", List.of("gameinit"), config, logs, manager);
 		help.setCmdInfo("Creates new chess game on this channel.");
 		help.setUsage(MessageFormat.format(
-				"{0}{1} @OpponentTag [optional chosen color: -black(-b), -white(-w), -random" +
-						"(-rand, -r) (default: -rand)]", config.get("prefix"), name()));
+				"""
+						{0}{1} @OpponentMention
+						Optional settings:
+						chosen color: -black(-b), -white(-w), -random(-rand, -r)(default: -rand)]"""
+				, config.get("prefix"), name()));
 	}
 
 	@Override
@@ -50,22 +53,24 @@ public class GameInitCommand extends ChessCommand {
 			return;
 		}
 
+		var whitePlayer = players[0];
+		var blackPlayer = players[1];
 		try {
-			var whitePlayer = players[0];
-			var blackPlayer = players[1];
 			gamesManager.registerGame(channel, whitePlayer, blackPlayer);
-			String msg = MessageFormat.format(
-					"""
-							Game created!
-							White: {0}
-							Black: {1}""",
-					whitePlayer.getAsMention(),
-					blackPlayer.getAsMention()
-			);
-			channel.sendMessage(msg).queue();
 		} catch(IllegalStateException e) {
 			channel.sendMessage("There already is a game ongoing on this channel.").queue();
+			return;
 		}
+
+		String msg = MessageFormat.format(
+				"""
+						Game created!
+						White: {0}
+						Black: {1}""",
+				whitePlayer.getAsMention(),
+				blackPlayer.getAsMention()
+		);
+		channel.sendMessage(msg).queue();
 	}
 
 	@Nullable
@@ -109,6 +114,4 @@ public class GameInitCommand extends ChessCommand {
 		}
 		return new User[] {whitePlayer, blackPlayer};
 	}
-
-
 }
