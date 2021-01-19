@@ -57,18 +57,30 @@ public class GameEventHandler implements ChessEventListener {
 
 	@Override
 	public void onMoveHandled() {
-		var pieces = manager.read(channel);
-		var builder = new EmbedBuilder();
-		builder.setTitle("Game");
-		for (ChessPiece[] piecesRow : pieces) {
-			for (ChessPiece piece : piecesRow) {
-				if (piece == null) builder.appendDescription(" ".repeat(3));
-				else builder.appendDescription(String.valueOf(piece.color().name().charAt(0)))
-						.appendDescription(piece.toString()).appendDescription(" ");
-			}
-			builder.appendDescription("\n");
+		var image = imageProcessor.generateImageOfBoard(manager.read(channel));
+		try {
+			sendImage(image, channel);
+		} catch(IOException e) {
+			logs.error(e.getClass(), e.getMessage() + "in {}", this.getClass());
 		}
-		channel.sendMessage(builder.build()).queue();
+	}
+
+	private static void sendImage(BufferedImage image, TextChannel channel) throws IOException {
+		String fileName = LocalDateTime.now().format(DateTimeFormatter.ISO_TIME)
+				.replaceAll("[:+]", "_")  + ".png";
+		var temp = new File("temp", fileName);
+		var embed = new EmbedBuilder();
+		embed.setTitle("Moved!");
+		ImageIO.write(image, "png", temp);
+		var file = new FileInputStream(temp);
+		embed.setImage("attachment://board.png");
+		channel.sendFile(file, "board.png").embed(embed.build()).queue();
+		new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+				temp.delete();
+			}
+		}, 500);
 	}
 
 	@Override
