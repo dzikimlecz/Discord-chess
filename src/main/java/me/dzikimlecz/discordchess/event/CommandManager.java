@@ -5,11 +5,13 @@ import me.dzikimlecz.discordchess.event.commands.AbstractCommand;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.util.CommandContext;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class CommandManager {
@@ -53,7 +55,7 @@ public class CommandManager {
 	public void handle(GuildMessageReceivedEvent event) {
 		String[] split = event.getMessage().getContentRaw().replaceFirst(
 						"(?i)" + Pattern.quote(config.get("prefix")), "")
-						.split("\\s+");
+				.trim().split("\\s+");
 		String commandName = split[0].toLowerCase();
 		var cmd = getCommand(commandName);
 		if (cmd == null) return;
@@ -64,5 +66,4 @@ public class CommandManager {
 	public List<AbstractCommand> commands() {
 		return commands;
 	}
-	
 }
