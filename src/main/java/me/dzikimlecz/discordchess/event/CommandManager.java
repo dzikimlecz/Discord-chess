@@ -26,7 +26,7 @@ public class CommandManager {
 		commands = new ArrayList<>();
 	}
 	
-	public void addCommand(AbstractCommand cmd) {
+	public void addCommand(@NotNull AbstractCommand cmd) {
 		boolean nameFound = commands.stream()
 				.anyMatch((it) -> it.name().equalsIgnoreCase(cmd.name()));
 		if (nameFound) throw new IllegalArgumentException("Command already present");
@@ -40,7 +40,7 @@ public class CommandManager {
 	}
 	
 	public void addCommands(AbstractCommand... commands) {
-		Arrays.stream(commands).forEachOrdered(this::addCommand);
+		Arrays.stream(commands).map(Objects::requireNonNull).forEachOrdered(this::addCommand);
 	}
 	
 	@Nullable
