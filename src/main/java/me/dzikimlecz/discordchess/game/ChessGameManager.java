@@ -21,7 +21,7 @@ public class ChessGameManager extends GamesManager<TextChannel> {
 
 	public void registerGame(TextChannel channel, User whitePlayer, User blackPlayer) {
 		var info = new GameInfo<>(channel, whitePlayer, blackPlayer);
-		var gameEventHandler = new GameEventHandler(info, this, config);
+		var gameEventHandler = new GameEventHandler(info, this, config, logs);
 		newGame(channel, gameEventHandler);
 		attachInfo(channel, info);
 	}

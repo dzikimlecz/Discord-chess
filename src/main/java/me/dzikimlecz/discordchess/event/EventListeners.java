@@ -38,7 +38,9 @@ public class EventListeners extends ListenerAdapter {
 				new MoveCommand(config, logs, gameManager),
 				new GameForceStopCommand(config, logs, gameManager),
 				new DrawRequestCommand(config, logs, gameManager),
-				new DrawResponseCommand(config, logs, gameManager)
+				new DrawResponseCommand(config, logs, gameManager),
+				new ResignCommand(config, logs, gameManager),
+				new PawnExchangeResponseCommand(config, logs, gameManager)
 		);
 	}
 
@@ -51,6 +53,4 @@ public class EventListeners extends ListenerAdapter {
 	public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
 		messagesListener.onGuildMessageReceived(event);
 	}
-	
-	
 }
