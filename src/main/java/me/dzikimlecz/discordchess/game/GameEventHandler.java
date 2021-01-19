@@ -8,6 +8,7 @@ import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.config.Resources;
+import me.dzikimlecz.discordchess.event.commands.ImageSender;
 import me.dzikimlecz.discordchess.util.ChessImageProcessor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -36,6 +37,7 @@ public class GameEventHandler implements ChessEventListener {
 	private final ChessGameManager manager;
 	private final IConfig<String> config;
 	private final ILogs logs;
+	private final ImageSender sender;
 	private final BlockingQueue<Boolean> drawResponseContainer;
 	private final BlockingQueue<String> exchangeResponseContainer;
 	private final ChessImageProcessor imageProcessor;
@@ -45,12 +47,14 @@ public class GameEventHandler implements ChessEventListener {
 	public GameEventHandler(GameInfo<TextChannel, User> gameInfo,
 	                        ChessGameManager manager,
 	                        IConfig<String> config,
-	                        ILogs logs) {
+	                        ILogs logs,
+	                        ImageSender sender) {
 		this.gameInfo = gameInfo;
 		channel = gameInfo.getKey();
 		this.manager = manager;
 		this.config = config;
 		this.logs = logs;
+		this.sender = sender;
 		this.drawResponseContainer = new ArrayBlockingQueue<>(1);
 		this.exchangeResponseContainer = new ArrayBlockingQueue<>(1);
 		imageProcessor = new ChessImageProcessor(new Resources());
@@ -60,32 +64,13 @@ public class GameEventHandler implements ChessEventListener {
 	public void onMoveHandled() {
 		var image = imageProcessor.generateImageOfBoard(manager.read(channel));
 		try {
-			sendImage(image, channel);
+			sender.sendImage(image, channel, "Moved");
 		} catch(IOException e) {
 			logs.error(e.getClass(), e.getMessage() + "in {}", this.getClass());
 		}
 	}
 
-	private static void sendImage(BufferedImage image, TextChannel channel) throws IOException {
-		String fileName =
-				MessageFormat.format("{0}{1}.png",
-				                     LocalDateTime.now().format(DateTimeFormatter.ISO_TIME)
-						                     .replaceAll("[:+]", "_"),
-				                     ThreadLocalRandom.current().nextInt(100));
-		var temp = new File("temp", fileName);
-		var embed = new EmbedBuilder();
-		embed.setTitle("Moved!");
-		ImageIO.write(image, "png", temp);
-		var file = new FileInputStream(temp);
-		embed.setImage("attachment://board.png");
-		channel.sendFile(file, "board.png").embed(embed.build()).queue();
-		new Timer().schedule(new TimerTask() {
-			@Override
-			public void run() {
-				temp.delete();
-			}
-		}, 500);
-	}
+
 
 	@Override
 	public void onIllegalMove() {
