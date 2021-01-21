@@ -33,25 +33,32 @@ public class HelpCommand extends AbstractCommand {
 		var args = context.getArgs();
 		if (args.isEmpty()) {
 			sendUsage(channel);
+			sendListOfCommands(channel);
 			return;
 		}
-		if (args.get(0).equals("list")) {
-			var messageBuilder = new MessageBuilder();
-			manager.commands().forEach(command -> {
-				messageBuilder.append(command.name()).append(" (");
-				command.aliases().forEach(alias -> messageBuilder.append(alias).append(", "));
-				messageBuilder.replaceLast(", ", ")\n");
-			});
-			channel.sendMessage(messageBuilder.build()).queue();
-		}
+
 		CommandHelpData commandHelpData;
 		try {
 			commandHelpData = getHelpData(args.get(0));
-		} catch(Exception e) {
+		} catch(IllegalArgumentException e) {
 			channel.sendMessage(e.getMessage()).queue();
+			sendListOfCommands(channel);
 			return;
 		}
 		sendHelp(channel, commandHelpData);
+	}
+
+	private void sendListOfCommands(TextChannel channel) {
+		var messageBuilder = new MessageBuilder();
+		manager.commands().forEach(command -> {
+			messageBuilder.append(command.name());
+			if (!command.aliases().isEmpty()) {
+				messageBuilder.append(" (");
+				command.aliases().forEach(alias -> messageBuilder.append(alias).append(", "));
+				messageBuilder.replaceLast(", ", ")\n");
+			}
+		});
+		channel.sendMessage(messageBuilder.build()).queue();
 	}
 
 	private void sendHelp(TextChannel channel, CommandHelpData data) {
