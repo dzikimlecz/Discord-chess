@@ -7,19 +7,17 @@ import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
-import me.dzikimlecz.discordchess.util.ImageSender;
 import me.dzikimlecz.discordchess.util.ChessImageProcessor;
+import me.dzikimlecz.discordchess.util.ImageSender;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -96,13 +94,7 @@ public class GameEventHandler implements ChessEventListener {
 		var color = manager.getTurn(channel);
 		exchangingPlayer = color;
 		var player = gameInfo.getPlayer(color);
-		var msg = new MessageBuilder();
-		var instruction =
-				MessageFormat.format("Send \"{0}pex\" + name of piece, or its notation",
-		                                  config.get("prefix"));
-		msg.append(player.getAsMention()).append(" has a pawn to exchange!\n")
-				.append(instruction);
-		channel.sendMessage(msg.build()).queue();
+		sendExchangeMessage(player);
 		String response;
 		while (true) {
 			try {
@@ -121,6 +113,19 @@ public class GameEventHandler implements ChessEventListener {
 			};
 			if (result != null) return result;
 			channel.sendMessage("There is no piece of name " + response).queue();
+		}
+	}
+
+	private void sendExchangeMessage(User player) {
+		var instruction =
+				"Send \"%s%s\" + name of piece, or its notation".formatted(
+		                                  config.get("prefix"), "pex");
+		var title = player.getAsMention() + "has a pawn to promote!\n";
+		try {
+			var image = ImageIO.read(getClass().getResource("promotion.png"));
+			sender.sendImage(image, channel, title, instruction);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
