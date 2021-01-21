@@ -16,10 +16,14 @@ import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GameEventHandler implements ChessEventListener {
 	private final GameInfo<TextChannel, User> gameInfo;
@@ -121,14 +125,31 @@ public class GameEventHandler implements ChessEventListener {
 	}
 
 	@Override
-	public void onMate(Color winner) {
-		gameInfo.setWinner(winner);
+	public void onMate(Color winnerColour) {
+		gameInfo.setWinner(winnerColour);
 		assert gameInfo.getWinner() != null && gameInfo.getLoser() != null;
-		channel.sendMessage(MessageFormat.format(
-				"{0} has defeated {1}! GG!",
-				gameInfo.getWinner().getAsMention(),
-				gameInfo.getLoser().getAsMention()
-		)).queue();
+		var winner = gameInfo.getWinner();
+		var loser = gameInfo.getLoser();
+		sendMateImage(winner, loser);
+	}
+
+	private void sendMateImage(User winner, User loser) {
+		var description = MessageFormat.format("{0} has deafeted {1}!",
+		                                       winner.getAsMention(),
+		                                       loser.getAsMention());
+		try {
+			BufferedImage image = getMateImage();
+			sender.sendImage(image, channel, "Mate!", description);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private BufferedImage getMateImage() throws IOException {
+		var filename = "win/win-%d.png"
+				.formatted(ThreadLocalRandom.current().nextInt(4));
+		var imageURL = getClass().getResource(filename);
+		return ImageIO.read(imageURL);
 	}
 
 	@Override
@@ -171,4 +192,6 @@ public class GameEventHandler implements ChessEventListener {
 	public Color exchangingPlayer() {
 		return exchangingPlayer;
 	}
+
+
 }
