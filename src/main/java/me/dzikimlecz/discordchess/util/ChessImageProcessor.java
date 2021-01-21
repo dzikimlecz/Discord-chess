@@ -1,24 +1,19 @@
 package me.dzikimlecz.discordchess.util;
 
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
-import me.dzikimlecz.discordchess.config.IConfig;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Objects;
 
 public class ChessImageProcessor {
 
 	private static final int SQUARE_SIDE_LENGTH = 512;
 	private static final int BOARD_SIDE_LENGTH = 8 * SQUARE_SIDE_LENGTH;
 	public static final BufferedImage EMPTY_BOARD;
-	private final IConfig<File> resources;
-
-	public ChessImageProcessor(IConfig<File> resources) {
-		this.resources = resources;
-	}
 
 	static {
 		EMPTY_BOARD = new BufferedImage(BOARD_SIDE_LENGTH,
@@ -63,8 +58,9 @@ public class ChessImageProcessor {
 		return boardImage;
 	}
 
+	@NotNull
 	private BufferedImage getPieceImage(@NotNull ChessPiece piece) {
-		final String pathNotFilled = "./pieces/pngs/{0}/{1}.png";
+		final String pathNotFilled = "pieces/pngs/{0}/{1}.png";
 		var color = piece.color().name().toLowerCase();
 		var name  = switch (piece.toString()) {
 			case "P" -> "pawn";
@@ -77,9 +73,21 @@ public class ChessImageProcessor {
 		};
 		String path = MessageFormat.format(pathNotFilled, color, name);
 		try {
-			return ImageIO.read(resources.get(path));
+			return ImageIO.read(getFromResources(path));
 		} catch(Exception e) {
-			throw new IllegalArgumentException("Piece without matching image");
+			throw new IllegalArgumentException("Piece without matching image", e);
+		}
+	}
+
+	@NotNull
+	private URL getFromResources(@NotNull String path) {
+		if (path.startsWith("/")) path = path.substring(1);
+		try {
+			return Objects.requireNonNull(this.getClass().getResource(path));
+		}  catch (NullPointerException e) {
+			throw new IllegalArgumentException("Resource not found", e);
+		} catch (ClassCastException e) {
+			throw new IllegalArgumentException("Resource was not a file", e);
 		}
 	}
 }
