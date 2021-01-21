@@ -1,5 +1,6 @@
 package me.dzikimlecz.discordchess.util;
 
+import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,6 +47,39 @@ public class ChessImageProcessor {
 				var pieceImage = getPieceImage(piece);
 				for (int rawY = 0; rawY < SQUARE_SIDE_LENGTH; rawY++) {
 					int y = row * SQUARE_SIDE_LENGTH + rawY;
+					for (int rawX = 0; rawX < SQUARE_SIDE_LENGTH; rawX++) {
+						int x = line * SQUARE_SIDE_LENGTH + rawX;
+						int pieceImageRGB = pieceImage.getRGB(rawX, rawY);
+						double pieceImageAlpha = pieceImageRGB / 1E6;
+						if (pieceImageAlpha != 0) boardImage.setRGB(x, y, pieceImageRGB);
+					}
+				}
+			}
+		}
+		return boardImage;
+	}
+
+	public BufferedImage generateImageOfBoard(ChessPiece[][] pieces,
+	                                          @NotNull Color colorOnTheBottom) {
+		if (pieces == null || pieces.length != 8 || pieces[0].length != 8)
+			throw new IllegalArgumentException("Illegal board format");
+		var boardImage = new BufferedImage(BOARD_SIDE_LENGTH,
+		                                   BOARD_SIDE_LENGTH,
+		                                   BufferedImage.TYPE_4BYTE_ABGR);
+		boardImage.setData(EMPTY_BOARD.getRaster());
+
+		int firstGeneratedRow = (colorOnTheBottom == Color.BLACK) ? 0 : 7;
+		int limit = (colorOnTheBottom == Color.BLACK) ? 8 : -1;
+		int delta = (colorOnTheBottom == Color.BLACK) ? 1 : -1;
+
+		for (int row = firstGeneratedRow, boardRow = 0;
+		     row != limit && boardRow < 8; row += delta, boardRow++) {
+			for (int line = 0; line < 8; line++) {
+				var piece = pieces[row][line];
+				if (piece == null) continue;
+				var pieceImage = getPieceImage(piece);
+				for (int rawY = 0; rawY < SQUARE_SIDE_LENGTH; rawY++) {
+					int y = boardRow * SQUARE_SIDE_LENGTH + rawY;
 					for (int rawX = 0; rawX < SQUARE_SIDE_LENGTH; rawX++) {
 						int x = line * SQUARE_SIDE_LENGTH + rawX;
 						int pieceImageRGB = pieceImage.getRGB(rawX, rawY);

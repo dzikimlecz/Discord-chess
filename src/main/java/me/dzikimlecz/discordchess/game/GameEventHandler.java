@@ -51,7 +51,8 @@ public class GameEventHandler implements ChessEventListener {
 
 	@Override
 	public void onMoveHandled() {
-		var image = imageProcessor.generateImageOfBoard(manager.read(channel));
+		var color = manager.getTurn(channel);
+		var image = imageProcessor.generateImageOfBoard(manager.read(channel), color);
 		try {
 			sender.sendImage(image, channel, "Moved");
 		} catch(IOException e) {

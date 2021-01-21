@@ -1,5 +1,6 @@
 package me.dzikimlecz.discordchess.event.commands.chess;
 
+import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.util.ImageSender;
@@ -89,7 +90,8 @@ public class GameInitCommand extends ChessCommand {
 	}
 
 	private void sendBoard(TextChannel channel) {
-		var image = imageProcessor.generateImageOfBoard(gamesManager.read(channel));
+		var image = imageProcessor.generateImageOfBoard(gamesManager.read(channel),
+		                                                Color.WHITE);
 		try {
 			imageSender.sendImage(image, channel, "Game Started!");
 		} catch(IOException e) {
