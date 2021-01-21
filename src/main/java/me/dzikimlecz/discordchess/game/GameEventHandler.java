@@ -7,29 +7,18 @@ import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
-import me.dzikimlecz.discordchess.config.Resources;
 import me.dzikimlecz.discordchess.event.commands.ImageSender;
 import me.dzikimlecz.discordchess.util.ChessImageProcessor;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class GameEventHandler implements ChessEventListener {
 	private final GameInfo<TextChannel, User> gameInfo;
@@ -57,7 +46,7 @@ public class GameEventHandler implements ChessEventListener {
 		this.sender = sender;
 		this.drawResponseContainer = new ArrayBlockingQueue<>(1);
 		this.exchangeResponseContainer = new ArrayBlockingQueue<>(1);
-		imageProcessor = new ChessImageProcessor(new Resources());
+		imageProcessor = new ChessImageProcessor();
 	}
 
 	@Override
@@ -69,8 +58,6 @@ public class GameEventHandler implements ChessEventListener {
 			logs.error(e.getClass(), e.getMessage() + "in {}", this.getClass());
 		}
 	}
-
-
 
 	@Override
 	public void onIllegalMove() {

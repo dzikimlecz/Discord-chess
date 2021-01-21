@@ -2,29 +2,19 @@ package me.dzikimlecz.discordchess.event.commands.chess;
 
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
-import me.dzikimlecz.discordchess.config.Resources;
 import me.dzikimlecz.discordchess.event.commands.ImageSender;
 import me.dzikimlecz.discordchess.game.ChessGameManager;
 import me.dzikimlecz.discordchess.util.ChessImageProcessor;
 import me.dzikimlecz.discordchess.util.CommandContext;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
+import java.awt.*;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GameInitCommand extends ChessCommand {
@@ -41,7 +31,7 @@ public class GameInitCommand extends ChessCommand {
 						Optional settings:
 						chosen color: -black(-b), -white(-w), -random(-rand, -r)(default: -rand)]"""
 				, config.get("prefix"), name()));
-		imageProcessor = new ChessImageProcessor(new Resources());
+		imageProcessor = new ChessImageProcessor();
 		imageSender = new ImageSender();
 	}
 
@@ -57,15 +47,16 @@ public class GameInitCommand extends ChessCommand {
 		}
 
 		String opponentTag = args.get(0);
-		User opponent = getOpponent(channel, opponentTag);
-		if (opponent == null) {
+		var opponent = getOpponent(channel, opponentTag);
+		if (opponent.isEmpty()) {
 			channel.sendMessage(MessageFormat.format(
-					"Cannot find non-bot member {0} on this channel", opponentTag)).queue();
+					"Cannot find member {0}, with which I can play, on this channel",
+					opponentTag)).queue();
 			return;
 		}
 
 		String colorOption = (args.size() > 1) ? args.get(1) : null;
-		User[] players = assignPlayers(colorOption, gameAuthor, opponent);
+		User[] players = assignPlayers(colorOption, gameAuthor, opponent.get());
 		if (players == null) {
 			sendUsage(channel);
 			return;
@@ -101,18 +92,27 @@ public class GameInitCommand extends ChessCommand {
 		}
 	}
 
-
-
-	@Nullable
-	private User getOpponent(TextChannel channel, String opponentTag) {
-		final var tag = opponentTag.replaceAll("\\D", "");
-		var opponentOptional = channel.getMembers().stream()
+	private Optional<User> getOpponent(TextChannel channel, String opponentTag) {
+		var tag = opponentTag.replaceAll("\\D", "");
+		return channel.getMembers().stream()
+				.filter(this::memberValidForPlaying)
 				.map(Member::getUser)
-				.dropWhile(User::isBot)
-				.filter(member -> member.getAsMention().replaceAll("\\D", "")
+				.filter(user -> user.getAsMention().replaceAll("\\D", "")
 						.equals(tag))
 				.findAny();
-		return opponentOptional.isEmpty() ? null : opponentOptional.get();
+	}
+
+	/**
+	 * Checks, if it's possible to play, with that member
+	 * @param member member to be validated for a game.
+	 * @return {@code false} if member is a bot or have a proper role to play chess (currently
+	 * just a role that is named <i>chess player</i>),<br>{@code true} otherwise.
+	 */
+	private boolean memberValidForPlaying(Member member) {
+		if (!member.getUser().isBot()) return true;
+		return member.getRoles().stream()
+				.anyMatch(role -> role.getName().replaceAll("\\s", "")
+						.equalsIgnoreCase("chessplayer"));
 	}
 
 	@Nullable
@@ -120,11 +120,8 @@ public class GameInitCommand extends ChessCommand {
 	                             @NotNull User author,
 	                             @NotNull User opponent) {
 		User whitePlayer, blackPlayer;
-		if (colorOption == null) {
-			var nextBool = ThreadLocalRandom.current().nextBoolean();
-			blackPlayer = (nextBool) ? author : opponent;
-			whitePlayer = (nextBool) ? opponent : author;
-		} else switch (colorOption) {
+		colorOption = (colorOption == null) ? "-r" : colorOption;
+		switch (colorOption) {
 			case "-black" -> {
 				blackPlayer = author;
 				whitePlayer = opponent;
