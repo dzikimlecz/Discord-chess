@@ -10,11 +10,9 @@ import net.dv8tion.jda.api.entities.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GameInitCommand extends ChessCommand {
@@ -46,17 +44,24 @@ public class GameInitCommand extends ChessCommand {
 			return;
 		}
 
-		String opponentTag = args.get(0);
-		var opponent = getOpponent(channel, opponentTag);
-		if (opponent.isEmpty()) {
-			channel.sendMessage(MessageFormat.format(
-					"Cannot find member {0}, with which I can play, on this channel",
-					opponentTag)).queue();
+		var opponents = context.getMessage().getMentionedMembers();
+		if (opponents.isEmpty()) {
+			sendUsage(channel);
 			return;
 		}
+		var opponentOptional = opponents.stream()
+				.filter(this::memberValidForPlaying).findAny();
+
+		if (opponentOptional.isEmpty()) {
+			channel.sendMessage(MessageFormat.format(
+					"Cannot find member {0}, with which I can play, on this channel",
+					opponents.get(0).getAsMention())).queue();
+			return;
+		}
+		var opponent = opponentOptional.get().getUser();
 
 		String colorOption = (args.size() > 1) ? args.get(1) : null;
-		User[] players = assignPlayers(colorOption, gameAuthor, opponent.get());
+		User[] players = assignPlayers(colorOption, gameAuthor, opponent);
 		if (players == null) {
 			sendUsage(channel);
 			return;
@@ -73,7 +78,7 @@ public class GameInitCommand extends ChessCommand {
 
 		String msg = MessageFormat.format(
 				"""
-						Game created!
+                        Game created!
 						White: {0}
 						Black: {1}""",
 				whitePlayer.getAsMention(),
@@ -92,16 +97,6 @@ public class GameInitCommand extends ChessCommand {
 		}
 	}
 
-	private Optional<User> getOpponent(TextChannel channel, String opponentTag) {
-		var tag = opponentTag.replaceAll("\\D", "");
-		return channel.getMembers().stream()
-				.filter(this::memberValidForPlaying)
-				.map(Member::getUser)
-				.filter(user -> user.getAsMention().replaceAll("\\D", "")
-						.equals(tag))
-				.findAny();
-	}
-
 	/**
 	 * Checks, if it's possible to play, with that member
 	 * @param member member to be validated for a game.
@@ -109,10 +104,9 @@ public class GameInitCommand extends ChessCommand {
 	 * just a role that is named <i>chess player</i>),<br>{@code true} otherwise.
 	 */
 	private boolean memberValidForPlaying(Member member) {
-		if (!member.getUser().isBot()) return true;
-		return member.getRoles().stream()
+		return (!member.getUser().isBot()) || (member.getRoles().stream()
 				.anyMatch(role -> role.getName().replaceAll("\\s", "")
-						.equalsIgnoreCase("chessplayer"));
+						.equalsIgnoreCase("chessplayer")));
 	}
 
 	@Nullable
