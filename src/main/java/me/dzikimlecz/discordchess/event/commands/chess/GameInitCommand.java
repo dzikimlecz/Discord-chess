@@ -1,16 +1,18 @@
 package me.dzikimlecz.discordchess.event.commands.chess;
 
-import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
-import me.dzikimlecz.discordchess.util.ImageSender;
 import me.dzikimlecz.discordchess.game.ChessGameManager;
-import me.dzikimlecz.discordchess.util.ChessImageProcessor;
 import me.dzikimlecz.discordchess.util.CommandContext;
-import net.dv8tion.jda.api.entities.*;
+import me.dzikimlecz.discordchess.util.ImageSender;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
@@ -18,7 +20,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class GameInitCommand extends ChessCommand {
 
-	private final ChessImageProcessor imageProcessor;
 	private final ImageSender imageSender;
 
 	public GameInitCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
@@ -30,7 +31,6 @@ public class GameInitCommand extends ChessCommand {
 						Optional settings:
 						chosen color: -black(-b), -white(-w), -random(-rand, -r)(default: -rand)]"""
 				, config.get("prefix"), name()));
-		imageProcessor = new ChessImageProcessor();
 		imageSender = new ImageSender();
 	}
 
@@ -77,22 +77,36 @@ public class GameInitCommand extends ChessCommand {
 			return;
 		}
 
-		String msg = MessageFormat.format(
+		sendGameStartMessage(channel, whitePlayer, blackPlayer);
+		sendBoard(channel);
+	}
+
+	private void sendGameStartMessage(TextChannel channel, User whitePlayer, User blackPlayer) {
+		String description = MessageFormat.format(
 				"""
-                        Game created!
 						White: {0}
 						Black: {1}""",
 				whitePlayer.getAsMention(),
 				blackPlayer.getAsMention()
 		);
-		channel.sendMessage(msg).queue();
-		new Thread(() -> sendBoard(channel)).start();
+		try {
+			var image = getMatchStartImage();
+			imageSender.sendImage(image, channel, "Game Started!", description);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private BufferedImage getMatchStartImage() throws IOException {
+		var filename = "match/match-%d.png".formatted(
+		                                    ThreadLocalRandom.current().nextInt(5));
+		return ImageIO.read(getClass().getResource(filename));
 	}
 
 	private void sendBoard(TextChannel channel) {
-		var image = imageProcessor.generateImageOfBoard(gamesManager.read(channel),
-		                                                Color.WHITE);
+		var imgURL = (getClass().getResource("starting-board.png"));
 		try {
+			var image = ImageIO.read(imgURL);
 			imageSender.sendImage(image, channel, "Game Started!");
 		} catch(IOException e) {
 			e.printStackTrace();
