@@ -2,7 +2,7 @@ package me.dzikimlecz.discordchess.event.commands.chess;
 
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
-import me.dzikimlecz.discordchess.event.commands.ImageSender;
+import me.dzikimlecz.discordchess.util.ImageSender;
 import me.dzikimlecz.discordchess.game.ChessGameManager;
 import me.dzikimlecz.discordchess.util.ChessImageProcessor;
 import me.dzikimlecz.discordchess.util.CommandContext;

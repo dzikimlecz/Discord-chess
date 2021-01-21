@@ -7,7 +7,7 @@ import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
-import me.dzikimlecz.discordchess.event.commands.ImageSender;
+import me.dzikimlecz.discordchess.util.ImageSender;
 import me.dzikimlecz.discordchess.util.ChessImageProcessor;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Activity;
