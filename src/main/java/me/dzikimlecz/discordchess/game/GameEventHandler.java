@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -85,7 +86,6 @@ public class GameEventHandler implements ChessEventListener {
 		}
 	}
 
-	@Nullable
 	@Override
 	public Class<? extends Piece> onPawnExchange() {
 		drawResponseContainer.clear();
@@ -106,7 +106,7 @@ public class GameEventHandler implements ChessEventListener {
 			} catch(InterruptedException e) {
 				return null;
 			}
-			var result = switch (response.toLowerCase()) {
+			Class<? extends Piece> result = switch (response.toLowerCase()) {
 				case "p", "pawn", "pionek" -> Pawn.class;
 				case "s", "n", "knight", "skoczek" -> Knight.class;
 				case "g", "b", "goniec", "bishop" -> Bishop.class;
