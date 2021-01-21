@@ -30,28 +30,32 @@ public class ShutdownCommand extends AbstractCommand {
 		var jda = context.getJDA();
 		var args = context.getArgs();
 		if (args.isEmpty()) closeOnTimeOut(jda,"0");
-		else if (args.get(0).equals("-w"))
-			try {
-				closeOnTimeOut(jda, args.get(1));
-			} catch(IndexOutOfBoundsException | NumberFormatException e) {
-				sendUsage(channel);
-			}
-		else if (args.get(0).startsWith("-"))
-			sendUsage(channel);
-		else closeOnTimeOut(jda, "0");
+		else closeOnTimeOut(jda, args.get(0));
 	}
 
 	private void closeOnTimeOut(JDA jda, String arg) {
 		var timeout = Double.parseDouble(arg.replace(',', '.'));
 		var msg = new StringBuilder("Shutting down");
-		if (timeout != 0)
+		if (timeout != 0) {
 			msg.append("in ").append(timeout).append("s");
-		logs.write(msg.toString(), ShutdownCommand.class);
-		new Timer().schedule(new TimerTask() {
-			public void run() {
-				BotCommons.shutdown(jda);
-				jda.shutdownNow();
-			}
-		}, (long) (timeout * 1E3));
+			new Timer().schedule(new TimerTask() {
+				public void run() {
+					BotCommons.shutdown(jda);
+					jda.shutdownNow();
+				}
+			}, (long) (timeout * 1E3));
+		} else {
+			logs.write(msg.toString(), ShutdownCommand.class);
+			BotCommons.shutdown(jda);
+			jda.shutdownNow();
+		}
+		var exitForSure = new Thread(() -> {
+			try {
+				Thread.sleep(4000);
+			} catch (InterruptedException ignored) {}
+			System.exit(0);
+		});
+		exitForSure.setDaemon(true);
+		exitForSure.start();
 	}
 }
