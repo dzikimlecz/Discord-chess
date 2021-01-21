@@ -93,9 +93,11 @@ public class GameEventHandler implements ChessEventListener {
 		exchangingPlayer = color;
 		var player = gameInfo.getPlayer(color);
 		var msg = new MessageBuilder();
+		var instruction =
+				MessageFormat.format("Send \"{0}pex\" + name of piece, or its notation",
+		                                  config.get("prefix"));
 		msg.append(player.getAsMention()).append(" has a pawn to exchange!\n")
-				.append(MessageFormat.format("Send \"{0}pex\" + name of piece, or its notation",
-			                             config.get("prefix")));
+				.append(instruction);
 		channel.sendMessage(msg.build()).queue();
 		String response;
 		while (true) {
@@ -104,27 +106,17 @@ public class GameEventHandler implements ChessEventListener {
 			} catch(InterruptedException e) {
 				return null;
 			}
-			switch (response.toLowerCase()) {
-				case "p", "pawn", "pionek" -> {
-					return Pawn.class;
-				}
-				case "s", "n", "knight", "skoczek" -> {
-					return Knight.class;
-				}
-				case "g", "b", "goniec", "bishop" -> {
-					return Bishop.class;
-				}
-				case "w", "r", "wieża", "wieza", "rook" -> {
-					return Rook.class;
-				}
-				case "h", "q", "hetman", "dama", "krolowa", "królowa", "queen" -> {
-					return Queen.class;
-				}
-				case "k", "król", "krol", "king" -> {
-					return King.class;
-				}
-				default -> channel.sendMessage("There is no piece of name " + response).queue();
-			}
+			var result = switch (response.toLowerCase()) {
+				case "p", "pawn", "pionek" -> Pawn.class;
+				case "s", "n", "knight", "skoczek" -> Knight.class;
+				case "g", "b", "goniec", "bishop" -> Bishop.class;
+				case "w", "r", "wieża", "wieza", "rook" -> Rook.class;
+				case "h", "q", "hetman", "dama", "krolowa", "królowa", "queen" -> Queen.class;
+				case "k", "król", "krol", "king" -> King.class;
+				default -> null;
+			};
+			if (result != null) return result;
+			channel.sendMessage("There is no piece of name " + response).queue();
 		}
 	}
 
@@ -137,22 +129,20 @@ public class GameEventHandler implements ChessEventListener {
 				gameInfo.getWinner().getAsMention(),
 				gameInfo.getLoser().getAsMention()
 		)).queue();
-		manager.close(channel);
 	}
 
 	@Override
 	public void onDraw(DrawReason drawReason) {
-		var message = new MessageBuilder();
-		message.append("That's a draw!\n");
-		switch (drawReason) {
-			case STALE_MATE -> message.append("You've got stale mated!");
-			case TRIPLE_POSITION_REPEAT -> message.append("Position was repeated!");
-			case FIFTY_MOVES_WITHOUT_PAWN -> message.append("Pawns weren't used for so long! ")
-					.append("(50 moves)");
-			case LACK_OF_PIECES -> message.append("That's not possible to mate for you!");
-		}
-		channel.sendMessage(message.build()).queue();
-		manager.close(channel);
+		var msg = new MessageBuilder();
+		msg.append("That's a draw!\n")
+				.append(switch (drawReason) {
+					case STALE_MATE -> "You've got stale-mated!";
+					case TRIPLE_POSITION_REPEAT -> "Position was repeated!";
+					case FIFTY_MOVES_WITHOUT_PAWN -> "Pawns weren't used for so long! (50 moves)";
+					case LACK_OF_PIECES -> "It's not possible to mate for you!";
+					case PLAYERS_DECISION -> "Your decision.";
+				});
+		channel.sendMessage(msg.build()).queue();
 	}
 
 	public void replyToDraw(boolean accept) {
