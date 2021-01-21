@@ -73,7 +73,7 @@ public class GameEventHandler implements ChessEventListener {
 		drawResponseContainer.clear();
 		drawRequester = requester;
 		User requestingPlayer = gameInfo.getPlayer(requester);
-		channel.sendMessage(requestingPlayer.getAsTag() + " requests a draw!").queue();
+		channel.sendMessage(requestingPlayer.getAsMention() + " requests a draw!").queue();
 		channel.sendMessage(MessageFormat.format(
 				"Send \"{0}draw accept\", or \"{0}draw deny\"",
 				config.get("prefix")
