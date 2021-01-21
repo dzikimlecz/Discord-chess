@@ -8,6 +8,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,6 +18,12 @@ import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ImageSender {
+
+	private final Timer timer;
+
+	public ImageSender() {
+		timer = new Timer();
+	}
 
 	public void sendImage(BufferedImage image,
 	                      TextChannel channel,
@@ -32,11 +40,16 @@ public class ImageSender {
 		var file = new FileInputStream(temp);
 		embed.setImage("attachment://board.png");
 		channel.sendFile(file, "board.png").embed(embed.build()).queue();
-		new Timer().schedule(new TimerTask() {
+		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				temp.delete();
+				try {
+					file.close();
+					Files.delete(temp.toPath());
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
 			}
-		}, 500);
+		}, 1000);
 	}
 }
