@@ -25,8 +25,15 @@ public class ImageSender {
 	}
 
 	public void sendImage(BufferedImage image,
+                      TextChannel channel,
+                      String title) throws IOException {
+		sendImage(image, channel, title, null);
+	}
+
+	public void sendImage(BufferedImage image,
 	                      TextChannel channel,
-	                      String title) throws IOException {
+	                      String title,
+	                      String description) throws IOException {
 		String fileName =
 				MessageFormat.format("{0}{1}.png",
 				                     LocalDateTime.now().format(DateTimeFormatter.ISO_TIME)
@@ -35,6 +42,8 @@ public class ImageSender {
 		var temp = new File("temp", fileName);
 		var embed = new EmbedBuilder();
 		embed.setTitle(title);
+		if (description != null)
+			embed.appendDescription(description);
 		ImageIO.write(image, "png", temp);
 		var file = new FileInputStream(temp);
 		embed.setImage("attachment://board.png");
