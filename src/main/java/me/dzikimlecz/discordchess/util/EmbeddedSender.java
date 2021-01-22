@@ -24,6 +24,30 @@ public class EmbeddedSender {
 		timer = new Timer();
 	}
 
+
+	public void sendFile(File file,
+	                     TextChannel channel,
+	                     String title,
+	                     String description) throws IOException {
+		var embed = new EmbedBuilder();
+		embed.setTitle(title);
+		if (description != null)
+			embed.appendDescription(description);
+		var stream = new FileInputStream(file);
+		embed.setImage("attachment://img.png");
+		channel.sendFile(stream, "img.png").embed(embed.build()).queue();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					stream.close();
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}, 2000);
+	}
+
 	public void sendImage(BufferedImage image,
                       TextChannel channel,
                       String title) throws IOException {
@@ -40,24 +64,17 @@ public class EmbeddedSender {
 						                     .replaceAll("[:+]", "_"),
 				                     ThreadLocalRandom.current().nextInt(100));
 		var temp = new File("temp", fileName);
-		var embed = new EmbedBuilder();
-		embed.setTitle(title);
-		if (description != null)
-			embed.appendDescription(description);
 		ImageIO.write(image, "png", temp);
-		var file = new FileInputStream(temp);
-		embed.setImage("attachment://board.png");
-		channel.sendFile(file, "board.png").embed(embed.build()).queue();
+		sendFile(temp, channel, title, description);
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				try {
-					file.close();
 					Files.delete(temp.toPath());
 				} catch(IOException e) {
 					e.printStackTrace();
 				}
 			}
-		}, 1000);
+		}, 2200);
 	}
 }
