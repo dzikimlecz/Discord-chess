@@ -45,6 +45,8 @@ public class GameForceStopCommand extends ChessCommand {
 				closeOnTimeOut(channel, args.get(1));
 			} catch(IndexOutOfBoundsException | NumberFormatException e) {
 				sendUsage(channel);
+			} catch (IllegalArgumentException e) {
+				channel.sendMessage("There aren't any ongoing games on this channel").queue();
 			}
 		else if (args.get(0).startsWith("-"))
 			sendUsage(channel);
