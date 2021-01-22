@@ -125,7 +125,7 @@ public class GameEventHandler implements ChessEventListener {
 		try {
 			var filename = "promotion.png";
 			var file = Path.of(getClass().getResource(filename).toURI()).toFile();
-			sender.sendFile(file, channel, title, instruction);
+			sender.sendFileAsThumbnail(file, channel, title, instruction);
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
@@ -146,7 +146,7 @@ public class GameEventHandler implements ChessEventListener {
 		                                       loser.getAsMention());
 		try {
 			var image = getMateImage();
-			sender.sendFile(image, channel, "Mate!", description);
+			sender.sendFileAsThumbnail(image, channel, "Mate!", description);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
