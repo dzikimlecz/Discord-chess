@@ -55,16 +55,12 @@ public class ResignCommand extends ChessCommand {
 		var description = MessageFormat.format("""
 				                    {0} resigned
 				                    Winner: {1}""", loser.getAsMention(), winner.getAsMention());
-		try {
-			var filename = "resign.png";
-			var input = ResignCommand.class.getResourceAsStream(filename);
-			embeddedSender.sendFileAsThumbnail(input,
-			                                   channel,
-			                                   title,
-			                                   description,
-			                                   new java.awt.Color(0xEBB865, false));
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
+		var filename = "resign.png";
+		var input = ResignCommand.class.getResourceAsStream(filename);
+		embeddedSender.sendFileAsThumbnail(input,
+		                                   channel,
+		                                   title,
+		                                   description,
+		                                   new java.awt.Color(0xEBB865, false));
 	}
 }

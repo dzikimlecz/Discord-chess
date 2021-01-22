@@ -113,11 +113,7 @@ public class GameInitCommand extends ChessCommand {
 
 	private void sendBoard(TextChannel channel) {
 		var resource = GameInitCommand.class.getResourceAsStream("start-board.png");
-		try {
-			embeddedSender.sendFile(resource, channel, "Game Started!");
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
+		embeddedSender.sendFile(resource, channel, "Game Started!");
 	}
 
 	/**

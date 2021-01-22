@@ -15,11 +15,8 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -125,11 +122,7 @@ public class GameEventHandler implements ChessEventListener {
 		var title = player.getAsMention() + "has a pawn to promote!\n";
 		var filename = "promotion.png";
 		var file = GameEventHandler.class.getResourceAsStream(filename);
-		try {
-			sender.sendFileAsThumbnail(file, channel, title, instruction);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		sender.sendFileAsThumbnail(file, channel, title, instruction);
 	}
 
 	@Override
@@ -146,15 +139,12 @@ public class GameEventHandler implements ChessEventListener {
 		                                       winner.getAsMention(),
 		                                       loser.getAsMention());
 		var image = getMateImage();
-		try {
-			sender.sendFileAsThumbnail(image,
-			                           channel,
-			                           "Mate!",
-			                           description,
-			                           new java.awt.Color(0xFD2A39, false));
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
+		sender.sendFileAsThumbnail(image,
+		                           channel,
+		                           "Mate!",
+		                           description,
+		                           new java.awt.Color(0xFD2A39, false));
+
 	}
 
 	private InputStream getMateImage() {

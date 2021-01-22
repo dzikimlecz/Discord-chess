@@ -31,7 +31,7 @@ public class EmbeddedSender {
 	public void sendFileAsThumbnail(InputStream file,
                                 TextChannel channel,
                                 String title,
-                                String description) throws IOException {
+                                String description) {
 		sendFileAsThumbnail(file, channel, title, description, null);
 	}
 
@@ -39,7 +39,7 @@ public class EmbeddedSender {
 	                                TextChannel channel,
 	                                String title,
 	                                String description,
-	                                @Nullable Color color) throws IOException {
+	                                @Nullable Color color) {
 		var embed = initEmbed(title, description, color);
 		var attachmentName = "img.png";
 		embed.setThumbnail("attachment://" + attachmentName);
@@ -48,7 +48,7 @@ public class EmbeddedSender {
 
 	public void sendFile(InputStream file,
                      TextChannel channel,
-                     String title) throws IOException {
+                     String title) {
 		sendFile(file, channel, title, null);
 	}
 
