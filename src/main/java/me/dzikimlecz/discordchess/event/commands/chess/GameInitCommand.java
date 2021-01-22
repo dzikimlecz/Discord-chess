@@ -111,7 +111,7 @@ public class GameInitCommand extends ChessCommand {
 	}
 
 	private void sendBoard(TextChannel channel) {
-		var imgURL = (getClass().getResource("starting-board.png"));
+		var imgURL = (getClass().getResource("start-board.png"));
 		try {
 			var image = ImageIO.read(imgURL);
 			embeddedSender.sendImage(image, channel, "Game Started!");
