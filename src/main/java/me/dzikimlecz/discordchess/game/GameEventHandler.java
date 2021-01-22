@@ -15,9 +15,10 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -122,9 +123,10 @@ public class GameEventHandler implements ChessEventListener {
 		                                  config.get("prefix"), "pex");
 		var title = player.getAsMention() + "has a pawn to promote!\n";
 		try {
-			var image = ImageIO.read(getClass().getResource("promotion.png"));
-			sender.sendImage(image, channel, title, instruction);
-		} catch (IOException e) {
+			var filename = "promotion.png";
+			var file = Path.of(getClass().getResource(filename).toURI()).toFile();
+			sender.sendFile(file, channel, title, instruction);
+		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 	}
@@ -143,18 +145,22 @@ public class GameEventHandler implements ChessEventListener {
 		                                       winner.getAsMention(),
 		                                       loser.getAsMention());
 		try {
-			BufferedImage image = getMateImage();
-			sender.sendImage(image, channel, "Mate!", description);
+			var image = getMateImage();
+			sender.sendFile(image, channel, "Mate!", description);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private BufferedImage getMateImage() throws IOException {
+	private File getMateImage() throws IOException {
 		var filename = "win/win-%d.png"
 				.formatted(ThreadLocalRandom.current().nextInt(4));
-		var imageURL = getClass().getResource(filename);
-		return ImageIO.read(imageURL);
+		try {
+			return Path.of(getClass().getResource(filename).toURI()).toFile();
+		} catch(URISyntaxException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override

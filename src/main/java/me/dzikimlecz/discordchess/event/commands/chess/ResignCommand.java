@@ -9,8 +9,9 @@ import me.dzikimlecz.discordchess.util.EmbeddedSender;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
-import javax.imageio.ImageIO;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +30,7 @@ public class ResignCommand extends ChessCommand {
 		var author = context.getAuthor();
 		var info = gamesManager.getInfo(channel);
 		Optional<User> userOptional = Optional.empty();
-		//checks if user is in game
+		//checks if author is in game
 		for (Color value : Color.values()) {
 			var player = info.getPlayer(value);
 			if (player.equals(author)) {
@@ -54,9 +55,10 @@ public class ResignCommand extends ChessCommand {
 		var title = loser.getAsMention() + " resigned!";
 		var description = "Winner: " + winner.getAsMention();
 		try {
-			var image = ImageIO.read(getClass().getResource("resign.png"));
-			embeddedSender.sendImage(image, channel, title, description);
-		} catch (IOException e) {
+			var filename = "resign.png";
+			var file = Path.of(getClass().getResource(filename).toURI()).toFile();
+			embeddedSender.sendFile(file, channel, title, description);
+		} catch(IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 	}

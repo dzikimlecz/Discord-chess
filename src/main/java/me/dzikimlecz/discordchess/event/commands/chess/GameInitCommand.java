@@ -12,8 +12,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -91,16 +93,21 @@ public class GameInitCommand extends ChessCommand {
 		);
 		try {
 			var image = getMatchStartImage();
-			embeddedSender.sendImage(image, channel, "Game Started!", description);
+			embeddedSender.sendFile(image, channel, "Game Started!", description);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private BufferedImage getMatchStartImage() throws IOException {
+	private File getMatchStartImage() throws IOException {
 		var filename = "match/match-%d.png".formatted(
 		                                    ThreadLocalRandom.current().nextInt(5));
-		return ImageIO.read(getClass().getResource(filename));
+		try {
+			return Path.of(getClass().getResource(filename).toURI()).toFile();
+		} catch(URISyntaxException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	private void sendBoard(TextChannel channel) {
