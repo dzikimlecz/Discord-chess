@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
@@ -27,14 +28,14 @@ public class EmbeddedSender {
 	}
 
 
-	public void sendFileAsThumbnail(File file,
+	public void sendFileAsThumbnail(InputStream file,
                                 TextChannel channel,
                                 String title,
                                 String description) throws IOException {
 		sendFileAsThumbnail(file, channel, title, description, null);
 	}
 
-	public void sendFileAsThumbnail(File file,
+	public void sendFileAsThumbnail(InputStream file,
 	                                TextChannel channel,
 	                                String title,
 	                                String description,
@@ -45,19 +46,25 @@ public class EmbeddedSender {
 		send(channel, file, embed, attachmentName);
 	}
 
-	public void sendFile(File file,
+	public void sendFile(InputStream file,
                      TextChannel channel,
-                     String title,
-                     String description) throws IOException {
+                     String title) throws IOException {
+		sendFile(file, channel, title, null);
+	}
+
+	public void sendFile(InputStream file,
+	                     TextChannel channel,
+	                     String title,
+	                     String description) {
 		sendFile(file, channel, title, description, null);
 	}
 
 
-	public void sendFile(File file,
+	public void sendFile(InputStream file,
 	                     TextChannel channel,
 	                     String title,
 	                     String description,
-	                     @Nullable Color color) throws IOException {
+	                     @Nullable Color color) {
 		var embed = initEmbed(title, description, color);
 		var attachmentName = "img.png";
 		embed.setImage("attachment://" + attachmentName);
@@ -82,7 +89,7 @@ public class EmbeddedSender {
 				                     ThreadLocalRandom.current().nextInt(100));
 		var temp = new File("temp", fileName);
 		ImageIO.write(image, "png", temp);
-		sendFile(temp, channel, title, description);
+		sendFile(new FileInputStream(temp), channel, title, description);
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -96,16 +103,15 @@ public class EmbeddedSender {
 	}
 
 	private void send(TextChannel channel,
-	                  File file,
+	                  InputStream file,
 	                  EmbedBuilder embed,
-	                  String attachmentName) throws IOException {
-		var stream = new FileInputStream(file);
-		channel.sendFile(stream, attachmentName).embed(embed.build()).queue();
+	                  String attachmentName) {
+		channel.sendFile(file, attachmentName).embed(embed.build()).queue();
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				try {
-					stream.close();
+					file.close();
 				} catch(IOException e) {
 					e.printStackTrace();
 				}

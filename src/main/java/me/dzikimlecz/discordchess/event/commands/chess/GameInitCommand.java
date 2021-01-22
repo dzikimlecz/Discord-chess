@@ -11,11 +11,8 @@ import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -103,22 +100,21 @@ public class GameInitCommand extends ChessCommand {
 		}
 	}
 
-	private File getMatchStartImage() throws IOException {
+	private InputStream getMatchStartImage() throws IOException {
 		var filename = "match/match-%d.png".formatted(
 		                                    ThreadLocalRandom.current().nextInt(5));
 		try {
-			return Path.of(getClass().getResource(filename).toURI()).toFile();
-		} catch(URISyntaxException e) {
+			return GameInitCommand.class.getResourceAsStream(filename);
+		} catch(NullPointerException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
 	private void sendBoard(TextChannel channel) {
-		var imgURL = (getClass().getResource("start-board.png"));
+		var resource = GameInitCommand.class.getResourceAsStream("start-board.png");
 		try {
-			var image = ImageIO.read(imgURL);
-			embeddedSender.sendImage(image, channel, "Game Started!");
+			embeddedSender.sendFile(resource, channel, "Game Started!");
 		} catch(IOException e) {
 			e.printStackTrace();
 		}

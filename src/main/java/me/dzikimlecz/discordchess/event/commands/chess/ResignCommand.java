@@ -10,8 +10,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
@@ -59,13 +57,13 @@ public class ResignCommand extends ChessCommand {
 				                    Winner: {1}""", loser.getAsMention(), winner.getAsMention());
 		try {
 			var filename = "resign.png";
-			var file = Path.of(getClass().getResource(filename).toURI()).toFile();
-			embeddedSender.sendFileAsThumbnail(file,
+			var input = ResignCommand.class.getResourceAsStream(filename);
+			embeddedSender.sendFileAsThumbnail(input,
 			                                   channel,
 			                                   title,
 			                                   description,
 			                                   new java.awt.Color(0xEBB865, false));
-		} catch(IOException | URISyntaxException e) {
+		} catch(IOException e) {
 			e.printStackTrace();
 		}
 	}

@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.text.MessageFormat;
@@ -122,11 +123,11 @@ public class GameEventHandler implements ChessEventListener {
 				"Send \"%s%s\" + name of piece, or its notation".formatted(
 		                                  config.get("prefix"), "pex");
 		var title = player.getAsMention() + "has a pawn to promote!\n";
+		var filename = "promotion.png";
+		var file = GameEventHandler.class.getResourceAsStream(filename);
 		try {
-			var filename = "promotion.png";
-			var file = Path.of(getClass().getResource(filename).toURI()).toFile();
 			sender.sendFileAsThumbnail(file, channel, title, instruction);
-		} catch (IOException | URISyntaxException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -144,8 +145,8 @@ public class GameEventHandler implements ChessEventListener {
 		var description = MessageFormat.format("{0} has deafeted {1}!",
 		                                       winner.getAsMention(),
 		                                       loser.getAsMention());
+		var image = getMateImage();
 		try {
-			var image = getMateImage();
 			sender.sendFileAsThumbnail(image,
 			                           channel,
 			                           "Mate!",
@@ -156,15 +157,10 @@ public class GameEventHandler implements ChessEventListener {
 		}
 	}
 
-	private File getMateImage() throws IOException {
+	private InputStream getMateImage() {
 		var filename = "win/win-%d.png"
 				.formatted(ThreadLocalRandom.current().nextInt(4));
-		try {
-			return Path.of(getClass().getResource(filename).toURI()).toFile();
-		} catch(URISyntaxException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return GameEventHandler.class.getResourceAsStream(filename);
 	}
 
 	@Override
