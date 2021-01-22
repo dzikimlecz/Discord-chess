@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,49 +28,40 @@ public class EmbeddedSender {
 
 
 	public void sendFileAsThumbnail(File file,
+                                TextChannel channel,
+                                String title,
+                                String description) throws IOException {
+		sendFileAsThumbnail(file, channel, title, description, null);
+	}
+
+	public void sendFileAsThumbnail(File file,
 	                                TextChannel channel,
 	                                String title,
-	                                String description) throws IOException {
-		var embed = new EmbedBuilder();
-		embed.setTitle(title);
-		if (description != null)
-			embed.appendDescription(description);
-		var stream = new FileInputStream(file);
-		embed.setThumbnail("attachment://img.png");
-		channel.sendFile(stream, "img.png").embed(embed.build()).queue();
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				try {
-					stream.close();
-				} catch(IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}, 2000);
+	                                String description,
+	                                @Nullable Color color) throws IOException {
+		var embed = initEmbed(title, description, color);
+		var attachmentName = "img.png";
+		embed.setThumbnail("attachment://" + attachmentName);
+		send(channel, file, embed, attachmentName);
 	}
+
+	public void sendFile(File file,
+                     TextChannel channel,
+                     String title,
+                     String description) throws IOException {
+		sendFile(file, channel, title, description, null);
+	}
+
 
 	public void sendFile(File file,
 	                     TextChannel channel,
 	                     String title,
-	                     String description) throws IOException {
-		var embed = new EmbedBuilder();
-		embed.setTitle(title);
-		if (description != null)
-			embed.appendDescription(description);
-		var stream = new FileInputStream(file);
-		embed.setImage("attachment://img.png");
-		channel.sendFile(stream, "img.png").embed(embed.build()).queue();
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				try {
-					stream.close();
-				} catch(IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}, 2000);
+	                     String description,
+	                     @Nullable Color color) throws IOException {
+		var embed = initEmbed(title, description, color);
+		var attachmentName = "img.png";
+		embed.setImage("attachment://" + attachmentName);
+		send(channel, file, embed, attachmentName);
 	}
 
 
@@ -101,5 +93,33 @@ public class EmbeddedSender {
 				}
 			}
 		}, 2200);
+	}
+
+	private void send(TextChannel channel,
+	                  File file,
+	                  EmbedBuilder embed,
+	                  String attachmentName) throws IOException {
+		var stream = new FileInputStream(file);
+		channel.sendFile(stream, attachmentName).embed(embed.build()).queue();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					stream.close();
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}, 2000);
+	}
+
+	private EmbedBuilder initEmbed(String title, String description, Color color) {
+		var embed = new EmbedBuilder();
+		embed.setTitle(title);
+		if (description != null)
+			embed.appendDescription(description);
+		if (color != null)
+			embed.setColor(color);
+		return embed;
 	}
 }
