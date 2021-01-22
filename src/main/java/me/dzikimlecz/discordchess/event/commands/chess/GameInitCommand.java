@@ -93,7 +93,11 @@ public class GameInitCommand extends ChessCommand {
 		);
 		try {
 			var image = getMatchStartImage();
-			embeddedSender.sendFileAsThumbnail(image, channel, "Game Created!", description);
+			embeddedSender.sendFileAsThumbnail(image,
+			                                   channel,
+			                                   "Game Created!",
+			                                   description,
+			                                   new java.awt.Color(0x60B9FE, false));
 		} catch(IOException e) {
 			e.printStackTrace();
 		}

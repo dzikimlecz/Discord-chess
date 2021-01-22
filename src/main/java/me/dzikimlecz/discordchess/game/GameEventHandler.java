@@ -146,7 +146,11 @@ public class GameEventHandler implements ChessEventListener {
 		                                       loser.getAsMention());
 		try {
 			var image = getMateImage();
-			sender.sendFileAsThumbnail(image, channel, "Mate!", description);
+			sender.sendFileAsThumbnail(image,
+			                           channel,
+			                           "Mate!",
+			                           description,
+			                           new java.awt.Color(0xFD2A39, false));
 		} catch(IOException e) {
 			e.printStackTrace();
 		}

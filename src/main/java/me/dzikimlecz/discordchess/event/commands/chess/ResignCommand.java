@@ -57,7 +57,11 @@ public class ResignCommand extends ChessCommand {
 		try {
 			var filename = "resign.png";
 			var file = Path.of(getClass().getResource(filename).toURI()).toFile();
-			embeddedSender.sendFileAsThumbnail(file, channel, title, description);
+			embeddedSender.sendFileAsThumbnail(file,
+			                                   channel,
+			                                   title,
+			                                   description,
+			                                   new java.awt.Color(0xEBB865, false));
 		} catch(IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
