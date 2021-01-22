@@ -16,11 +16,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ImageSender {
+public class EmbeddedSender {
 
 	private final Timer timer;
 
-	public ImageSender() {
+	public EmbeddedSender() {
 		timer = new Timer();
 	}
 

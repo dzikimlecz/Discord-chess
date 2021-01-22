@@ -8,7 +8,7 @@ import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.util.ChessImageProcessor;
-import me.dzikimlecz.discordchess.util.ImageSender;
+import me.dzikimlecz.discordchess.util.EmbeddedSender;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -29,7 +29,7 @@ public class GameEventHandler implements ChessEventListener {
 	private final ChessGameManager manager;
 	private final IConfig<String> config;
 	private final ILogs logs;
-	private final ImageSender sender;
+	private final EmbeddedSender sender;
 	private final BlockingQueue<Boolean> drawResponseContainer;
 	private final BlockingQueue<String> exchangeResponseContainer;
 	private final ChessImageProcessor imageProcessor;
@@ -40,7 +40,7 @@ public class GameEventHandler implements ChessEventListener {
 	                        ChessGameManager manager,
 	                        IConfig<String> config,
 	                        ILogs logs,
-	                        ImageSender sender) {
+	                        EmbeddedSender sender) {
 		this.gameInfo = gameInfo;
 		channel = gameInfo.getKey();
 		this.manager = manager;

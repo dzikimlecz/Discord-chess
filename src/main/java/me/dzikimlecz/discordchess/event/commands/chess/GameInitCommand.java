@@ -4,7 +4,7 @@ import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.game.ChessGameManager;
 import me.dzikimlecz.discordchess.util.CommandContext;
-import me.dzikimlecz.discordchess.util.ImageSender;
+import me.dzikimlecz.discordchess.util.EmbeddedSender;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class GameInitCommand extends ChessCommand {
 
-	private final ImageSender imageSender;
+	private final EmbeddedSender embeddedSender;
 
 	public GameInitCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
 		super("chess", List.of("gameinit"), config, logs, manager);
@@ -31,7 +31,7 @@ public class GameInitCommand extends ChessCommand {
 						Optional settings:
 						chosen color: -black(-b), -white(-w), -random(-rand, -r)(default: -rand)]"""
 				, config.get("prefix"), name()));
-		imageSender = new ImageSender();
+		embeddedSender = new EmbeddedSender();
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class GameInitCommand extends ChessCommand {
 		);
 		try {
 			var image = getMatchStartImage();
-			imageSender.sendImage(image, channel, "Game Started!", description);
+			embeddedSender.sendImage(image, channel, "Game Started!", description);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -107,7 +107,7 @@ public class GameInitCommand extends ChessCommand {
 		var imgURL = (getClass().getResource("starting-board.png"));
 		try {
 			var image = ImageIO.read(imgURL);
-			imageSender.sendImage(image, channel, "Game Started!");
+			embeddedSender.sendImage(image, channel, "Game Started!");
 		} catch(IOException e) {
 			e.printStackTrace();
 		}

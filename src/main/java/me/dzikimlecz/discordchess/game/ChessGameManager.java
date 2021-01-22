@@ -6,25 +6,25 @@ import me.dzikimlecz.chessapi.GamesManager;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
-import me.dzikimlecz.discordchess.util.ImageSender;
+import me.dzikimlecz.discordchess.util.EmbeddedSender;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 public class ChessGameManager extends GamesManager<TextChannel> {
 	private final IConfig<String> config;
 	private final ILogs logs;
-	private final ImageSender imageSender;
+	private final EmbeddedSender embeddedSender;
 
 	public ChessGameManager(IConfig<String> config, ILogs logs) {
 		super();
 		this.config = config;
 		this.logs = logs;
-		imageSender = new ImageSender();
+		embeddedSender = new EmbeddedSender();
 	}
 
 	public void registerGame(TextChannel channel, User whitePlayer, User blackPlayer) {
 		var info = new GameInfo<>(channel, whitePlayer, blackPlayer);
-		var gameEventHandler = new GameEventHandler(info, this, config, logs, imageSender);
+		var gameEventHandler = new GameEventHandler(info, this, config, logs, embeddedSender);
 		newGame(channel, gameEventHandler);
 		attachInfo(channel, info);
 	}

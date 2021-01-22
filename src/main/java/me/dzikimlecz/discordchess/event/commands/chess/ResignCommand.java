@@ -5,23 +5,22 @@ import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.game.ChessGameManager;
 import me.dzikimlecz.discordchess.util.CommandContext;
-import me.dzikimlecz.discordchess.util.ImageSender;
+import me.dzikimlecz.discordchess.util.EmbeddedSender;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 public class ResignCommand extends ChessCommand {
 
-	private final ImageSender imageSender;
+	private final EmbeddedSender embeddedSender;
 
 	public ResignCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
 		super("resign", List.of(), config, logs, manager);
-		imageSender = new ImageSender();
+		embeddedSender = new EmbeddedSender();
 	}
 
 	@Override
@@ -56,7 +55,7 @@ public class ResignCommand extends ChessCommand {
 		var description = "Winner: " + winner.getAsMention();
 		try {
 			var image = ImageIO.read(getClass().getResource("resign.png"));
-			imageSender.sendImage(image, channel, title, description);
+			embeddedSender.sendImage(image, channel, title, description);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
