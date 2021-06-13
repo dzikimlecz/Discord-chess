@@ -35,7 +35,7 @@ class BlockingContainerImpl<E> implements BlockingContainer<E> {
         return content.peek();
     }
 
-    @Override public void clean() {
+    @Override public void clear() {
         this.content.clear();
         cache = null;
     }

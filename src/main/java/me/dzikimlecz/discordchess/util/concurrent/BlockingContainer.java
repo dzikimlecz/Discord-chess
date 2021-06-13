@@ -38,7 +38,7 @@ public interface BlockingContainer<E> {
     /**
      * removes any value.
      */
-    void clean();
+    void clear();
 
     /**
      * Checks if there is no present value.
