@@ -7,23 +7,38 @@ plugins {
 group 'me.dzikimlecz'
 version '1.1'
 
-sourceCompatibility = JavaVersion.VERSION_15
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(16)
+    }
+}
 
 mainClassName = 'me.dzikimlecz.discordchess.Bot'
 
 repositories {
+    mavenCentral()
     jcenter()
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
+    maven {
+        name 'duncte123-jfrog'
+        url 'https://duncte123.jfrog.io/artifactory/maven'
+    }
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
-    implementation group: 'net.dv8tion', name: 'JDA', version: '4.2.0_227'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.1'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1'
+    implementation("net.dv8tion:JDA:4.2.0_249") {
+        exclude module: 'opus-java'
+    }
     implementation group: 'com.jagrosh', name: 'jda-utilities', version: '3.0.5'
-    implementation group: 'me.duncte123', name: 'botCommons', version: '2.0.122'
+    implementation group: 'me.duncte123', name: 'botCommons', version: '2.2.7'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     implementation group: 'io.github.cdimascio', name: 'dotenv-java', version: '2.2.0'
-    implementation files('C:\\dev\\java\\libs\\chessapi-1.1.1.jar')
+    implementation files('C:\\libs\\chessapi-1.1.1.jar')
 }
 
 test {
