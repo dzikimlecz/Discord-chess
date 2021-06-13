@@ -30,17 +30,19 @@ public class GameEventHandler implements ChessEventListener {
     private final IConfig<String> config;
     private final ILogs logs;
     private final EmbeddedSender sender;
+    private final ChessImageProcessor imageProcessor;
     private final BlockingQueue<Boolean> drawResponseContainer;
     private final BlockingQueue<String> exchangeResponseContainer;
-    private final ChessImageProcessor imageProcessor;
     private Color drawRequester;
     private Color exchangingPlayer;
 
-    public GameEventHandler(GameInfo<TextChannel, User> gameInfo,
-                            ChessGameManager manager,
-                            IConfig<String> config,
-                            ILogs logs,
-                            EmbeddedSender sender) {
+    public GameEventHandler(
+            GameInfo<TextChannel, User> gameInfo,
+            ChessGameManager manager,
+            IConfig<String> config,
+            ILogs logs,
+            EmbeddedSender sender
+    ) {
         this.gameInfo = gameInfo;
         channel = gameInfo.getKey();
         this.manager = manager;
