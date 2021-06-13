@@ -8,16 +8,16 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class MessagesListener extends AbstractEventListener {
-	
-	public MessagesListener(IConfig<String> config, ILogs logs, CommandManager manager) {
-		super(config, logs, manager);
-	}
 
-	public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
-		String rawMessage = event.getMessage().getContentRaw();
-		if (rawMessage.startsWith(config.get("prefix")))
-			commandManager.handle(event);
-		else if (rawMessage.toLowerCase().contains("szachy"))
-			event.getMessage().reply(new MessageBuilder().append("Szachy są kul").build()).queue();
-	}
+    public MessagesListener(IConfig<String> config, ILogs logs, CommandManager manager) {
+        super(config, logs, manager);
+    }
+
+    public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
+        String rawMessage = event.getMessage().getContentRaw();
+        if (rawMessage.startsWith(config.get("prefix")))
+            commandManager.handle(event);
+        else if (rawMessage.toLowerCase().contains("szachy"))
+            event.getMessage().reply(new MessageBuilder().append("Szachy są kul").build()).queue();
+    }
 }

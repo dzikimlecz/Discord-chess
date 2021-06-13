@@ -10,35 +10,35 @@ import java.util.List;
 
 public abstract class AbstractCommand {
 
-	private final String name;
-	private final List<String> aliases;
-	protected final IConfig<String> config;
-	protected final ILogs logs;
-	protected final CommandHelpData help;
+    protected final IConfig<String> config;
+    protected final ILogs logs;
+    protected final CommandHelpData help;
+    private final String name;
+    private final List<String> aliases;
 
-	public AbstractCommand(String name, List<String> aliases, IConfig<String> config, ILogs logs) {
-		this.name = name;
-		this.aliases = aliases;
-		this.config = config;
-		this.logs = logs;
-		help = new CommandHelpData(name(), aliases(), "");
-	}
+    public AbstractCommand(String name, List<String> aliases, IConfig<String> config, ILogs logs) {
+        this.name = name;
+        this.aliases = aliases;
+        this.config = config;
+        this.logs = logs;
+        help = new CommandHelpData(name(), aliases(), "");
+    }
 
-	public abstract void handle(CommandContext context);
-	
-	public String name() {
-		return name;
-	}
-	
-	public CommandHelpData help() {
-		return help;
-	}
-	
-	public List<String> aliases() {
-		return aliases;
-	}
+    public abstract void handle(CommandContext context);
 
-	protected void sendUsage(TextChannel channel) {
-		channel.sendMessage("Usage: " + help.usage()).queue();
-	}
+    public String name() {
+        return name;
+    }
+
+    public CommandHelpData help() {
+        return help;
+    }
+
+    public List<String> aliases() {
+        return aliases;
+    }
+
+    protected void sendUsage(TextChannel channel) {
+        channel.sendMessage("Usage: " + help.usage()).queue();
+    }
 }

@@ -14,58 +14,58 @@ import java.util.List;
 
 public class MoveCommand extends ChessCommand {
 
-	public MoveCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
-		super("move", List.of("mv", "m"), config, logs, manager);
-		help.setCmdInfo("Command used for performing a move during a chess game");
-		help.setUsage(MessageFormat.format("{0}{1} + move notation", config.get("prefix"), name()));
-	}
+    public MoveCommand(IConfig<String> config, ILogs logs, ChessGameManager manager) {
+        super("move", List.of("mv", "m"), config, logs, manager);
+        help.setCmdInfo("Command used for performing a move during a chess game");
+        help.setUsage(MessageFormat.format("{0}{1} + move notation", config.get("prefix"), name()));
+    }
 
-	@Override
-	public void handle(CommandContext context) {
-		var args = context.getArgs();
-		var channel = context.getChannel();
-		var author = context.getAuthor();
+    @Override
+    public void handle(CommandContext context) {
+        var args = context.getArgs();
+        var channel = context.getChannel();
+        var author = context.getAuthor();
 
-		if (args.size() < 1) {
-			sendUsage(channel);
-			return;
-		}
+        if (args.size() < 1) {
+            sendUsage(channel);
+            return;
+        }
 
-		var playerCheckStatus = checkPlayer(channel, author);
-		if (playerCheckStatus != null) {
-			channel.sendMessage(playerCheckStatus).queue();
-			return;
-		}
+        var playerCheckStatus = checkPlayer(channel, author);
+        if (playerCheckStatus != null) {
+            channel.sendMessage(playerCheckStatus).queue();
+            return;
+        }
 
-		clearDrawRequests(channel);
+        clearDrawRequests(channel);
 
-		var notation = args.get(0);
-		try {
-			gamesManager.move(channel, notation);
-		} catch(IllegalArgumentException e) {
-			channel.sendMessage("This is not a correct move!").queue();
-		}
-	}
+        var notation = args.get(0);
+        try {
+            gamesManager.move(channel, notation);
+        } catch (IllegalArgumentException e) {
+            channel.sendMessage("This is not a correct move!").queue();
+        }
+    }
 
-	private void clearDrawRequests(TextChannel channel) {
-		var listener = gamesManager.getListener(channel);
-		if (listener.drawRequester() != null) listener.replyToDraw(false);
-	}
+    private void clearDrawRequests(TextChannel channel) {
+        var listener = gamesManager.getListener(channel);
+        if (listener.drawRequester() != null) listener.replyToDraw(false);
+    }
 
-	@Nullable
-	private String checkPlayer(TextChannel channel, User author) {
-		GameInfo<TextChannel, User> info;
-		try {
-			info = gamesManager.getInfo(channel);
-		} catch(IllegalStateException e) {
-			return "There isn't any game ongoing on this channel";
-		}
-		var turnColor = gamesManager.getTurn(channel);
-		var appropriatePlayer = info.getPlayer(turnColor);
-		if (!appropriatePlayer.equals(author)) {
-			return info.getPlayer(turnColor.opposite()).equals(author) ?
-					"That's not your turn!" : "You aren't in any game on this channel!";
-		}
-		return null;
-	}
+    @Nullable
+    private String checkPlayer(TextChannel channel, User author) {
+        GameInfo<TextChannel, User> info;
+        try {
+            info = gamesManager.getInfo(channel);
+        } catch (IllegalStateException e) {
+            return "There isn't any game ongoing on this channel";
+        }
+        var turnColor = gamesManager.getTurn(channel);
+        var appropriatePlayer = info.getPlayer(turnColor);
+        if (!appropriatePlayer.equals(author)) {
+            return info.getPlayer(turnColor.opposite()).equals(author) ?
+                    "That's not your turn!" : "You aren't in any game on this channel!";
+        }
+        return null;
+    }
 }

@@ -9,15 +9,15 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 public class OnReadyListener extends AbstractEventListener {
-	
-	public OnReadyListener(IConfig<String> config, ILogs logs, CommandManager manager) {
-		super(config, logs, manager);
-	}
-	
 
-	public void onReady(@NotNull ReadyEvent event) {
-		logs.write( "{} is ready.", event.getJDA().getSelfUser().getAsTag());
-		var temps = new File("temp");
-		if (!temps.exists()) temps.mkdir();
-	}
+    public OnReadyListener(IConfig<String> config, ILogs logs, CommandManager manager) {
+        super(config, logs, manager);
+    }
+
+
+    public void onReady(@NotNull ReadyEvent event) {
+        logs.write("{} is ready.", event.getJDA().getSelfUser().getAsTag());
+        var temps = new File("temp");
+        if (!temps.exists()) temps.mkdir();
+    }
 }
