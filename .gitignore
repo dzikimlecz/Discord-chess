@@ -2,6 +2,7 @@ build/
 gradle/
 resss/
 *.env
+*.iml
 .env
 gradlew
 gradlew.bat
