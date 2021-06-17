@@ -9,6 +9,7 @@ import me.dzikimlecz.discordchess.config.IConfig;
 import me.dzikimlecz.discordchess.config.ILogs;
 import me.dzikimlecz.discordchess.util.ChessImageProcessor;
 import me.dzikimlecz.discordchess.util.EmbeddedSender;
+import me.dzikimlecz.discordchess.util.concurrent.BlockingContainer;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -18,9 +19,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
 
 // TODO: 13.06.2021 replace this absolute mess of 2137 fields with something neater
 public class GameEventHandler implements ChessEventListener {
@@ -31,10 +31,10 @@ public class GameEventHandler implements ChessEventListener {
     private final ILogs logs;
     private final EmbeddedSender sender;
     private final ChessImageProcessor imageProcessor;
-    private final BlockingQueue<Boolean> drawResponseContainer;
-    private final BlockingQueue<String> exchangeResponseContainer;
-    private Color drawRequester;
-    private Color exchangingPlayer;
+    private final BlockingContainer<Boolean> drawResponseContainer;
+    private final BlockingContainer<String> exchangeResponseContainer;
+    private final AtomicReference<Color> drawRequester;
+    private final AtomicReference<Color> exchangingPlayer;
 
     public GameEventHandler(
             GameInfo<TextChannel, User> gameInfo,
@@ -49,9 +49,11 @@ public class GameEventHandler implements ChessEventListener {
         this.config = config;
         this.logs = logs;
         this.sender = sender;
-        this.drawResponseContainer = new ArrayBlockingQueue<>(1);
-        this.exchangeResponseContainer = new ArrayBlockingQueue<>(1);
+        this.drawResponseContainer = BlockingContainer.create();
+        this.exchangeResponseContainer = BlockingContainer.create();
         imageProcessor = new ChessImageProcessor();
+        drawRequester = new AtomicReference<>();
+        exchangingPlayer = new AtomicReference<>();
     }
 
     @Override
@@ -76,7 +78,7 @@ public class GameEventHandler implements ChessEventListener {
     @Override
     public boolean onDrawRequest(Color requester) {
         drawResponseContainer.clear();
-        drawRequester = requester;
+        drawRequester.set(requester);
         User requestingPlayer = gameInfo.getPlayer(requester);
         channel.sendMessage(requestingPlayer.getAsMention() + " requests a draw!").queue();
         channel.sendMessage(MessageFormat.format(
@@ -94,7 +96,7 @@ public class GameEventHandler implements ChessEventListener {
     public Class<? extends Piece> onPawnExchange() {
         drawResponseContainer.clear();
         var color = manager.getTurn(channel);
-        exchangingPlayer = color;
+        exchangingPlayer.set(color);
         var player = gameInfo.getPlayer(color);
         sendExchangeMessage(player);
         String response;
@@ -157,15 +159,15 @@ public class GameEventHandler implements ChessEventListener {
 
     @Override
     public void onDraw(DrawReason drawReason) {
-        var msg = new MessageBuilder();
-        msg.append("That's a draw!\n")
-                .append(switch (drawReason) {
-                    case STALE_MATE -> "You've got stale-mated!";
-                    case TRIPLE_POSITION_REPEAT -> "Position was repeated!";
-                    case FIFTY_MOVES_WITHOUT_PAWN -> "Pawns weren't used for so long! (50 moves)";
-                    case LACK_OF_PIECES -> "It's not possible to mate for you!";
-                    case PLAYERS_DECISION -> "Your decision.";
-                });
+        var msg = new MessageBuilder()
+                .append("That's a draw!\n").append(
+                        switch (drawReason) {
+                            case STALE_MATE -> "You've got stale-mated!";
+                            case TRIPLE_POSITION_REPEAT -> "Position was repeated!";
+                            case FIFTY_MOVES_WITHOUT_PAWN -> "Pawns weren't used for so long! (50 moves)";
+                            case LACK_OF_PIECES -> "It's not possible to mate for you!";
+                            case PLAYERS_DECISION -> "Your decision.";
+                        });
         channel.sendMessage(msg.build()).queue();
     }
 
@@ -175,7 +177,7 @@ public class GameEventHandler implements ChessEventListener {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        drawRequester = null;
+        drawRequester.set(null);
     }
 
     public void replyToExchange(String piece) {
@@ -184,17 +186,16 @@ public class GameEventHandler implements ChessEventListener {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        exchangingPlayer = null;
+        exchangingPlayer.set(null);
     }
 
     @Nullable
     public Color drawRequester() {
-        return drawRequester;
+        return drawRequester.get();
     }
 
     public Color exchangingPlayer() {
-        return exchangingPlayer;
+        return exchangingPlayer.get();
     }
-
 
 }
