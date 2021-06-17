@@ -8,15 +8,19 @@ import net.dv8tion.jda.api.JDA;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ShutdownCommand extends AbstractCommand {
+    private final ScheduledExecutorService shutterDown;
 
     public ShutdownCommand(IConfig<String> config, ILogs logs) {
         super("shutdown", List.of("off"), config, logs);
         help.setCmdInfo("Command permitted only for bot developers. Shuts it down on all servers.");
         help.setUsage(MessageFormat.format("{0}{1}", config.get("prefix"), name()));
+        shutterDown = Executors.newScheduledThreadPool(1);
     }
 
     @Override
@@ -36,22 +40,17 @@ public class ShutdownCommand extends AbstractCommand {
     private void closeOnTimeOut(JDA jda, String arg) {
         var timeout = Double.parseDouble(arg.replace(',', '.'));
         var msg = new StringBuilder("Shutting down");
-        if (timeout != 0) {
-            msg.append("in ").append(timeout).append("s");
-            new Timer().schedule(new TimerTask() {
-                public void run() {
-                    BotCommons.shutdown(jda);
-                    jda.shutdownNow();
-                }
-            }, (long) (timeout * 1E3));
-        } else {
-            logs.write(msg.toString(), ShutdownCommand.class);
+        if (timeout != 0)
+            msg.append("in ").append(timeout).append(" s");
+        logs.write(msg.toString(), ShutdownCommand.class);
+        shutterDown.schedule(() -> {
             BotCommons.shutdown(jda);
             jda.shutdownNow();
-        }
+            shutterDown.shutdown();
+        }, (long) timeout, SECONDS);
         var exitForSure = new Thread(() -> {
             try {
-                Thread.sleep(4000);
+                Thread.sleep((long) (timeout / 998));
             } catch (InterruptedException ignored) { }
             System.exit(0);
         });
