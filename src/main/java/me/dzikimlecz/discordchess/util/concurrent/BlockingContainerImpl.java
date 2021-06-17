@@ -15,6 +15,9 @@ class BlockingContainerImpl<E> implements BlockingContainer<E> {
         cache = null;
         final var old = content.peek();
         content.put(value);
+        synchronized (lock) {
+            lock.notifyAll();
+        }
         return old;
     }
 
@@ -22,6 +25,9 @@ class BlockingContainerImpl<E> implements BlockingContainer<E> {
         cache = null;
         final var old = content.poll();
         if (value != null) content.offer(value);
+        synchronized (lock) {
+            lock.notifyAll();
+        }
         return old;
     }
 
@@ -38,6 +44,9 @@ class BlockingContainerImpl<E> implements BlockingContainer<E> {
     @Override public void clear() {
         this.content.clear();
         cache = null;
+        synchronized (lock) {
+            lock.notifyAll();
+        }
     }
 
     @Override public boolean isEmpty() {
@@ -59,20 +68,20 @@ class BlockingContainerImpl<E> implements BlockingContainer<E> {
 
     @Override public void waitUntilEmpty() throws InterruptedException {
         if (cache != null) {
-            content.offer(cache);
+            content.add(cache);
             cache = null;
         }
         synchronized (lock) {
-            while (!content.isEmpty())
-                wait();
+            while (isFilled())
+                lock.wait();
         }
     }
 
     @Override public void waitUntilFilled() throws InterruptedException {
         if (cache != null) return;
         synchronized (lock) {
-            while (content.isEmpty())
-                wait();
+            while (isEmpty())
+                lock.wait();
         }
     }
 }
