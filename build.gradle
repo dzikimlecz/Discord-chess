@@ -17,7 +17,6 @@ mainClassName = 'me.dzikimlecz.discordchess.Bot'
 
 repositories {
     mavenCentral()
-    jcenter()
     maven {
         name 'm2-dv8tion'
         url 'https://m2.dv8tion.net/releases'
@@ -34,7 +33,6 @@ dependencies {
     implementation("net.dv8tion:JDA:4.2.0_249") {
         exclude module: 'opus-java'
     }
-    implementation group: 'com.jagrosh', name: 'jda-utilities', version: '3.0.5'
     implementation group: 'me.duncte123', name: 'botCommons', version: '2.2.7'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     implementation group: 'io.github.cdimascio', name: 'dotenv-java', version: '2.2.0'
