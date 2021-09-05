@@ -13,21 +13,35 @@ import java.util.Objects;
 
 public class ChessImageProcessor {
 
-    public static final BufferedImage EMPTY_BOARD;
+    public static final BufferedImage WHITE_SIDE_BOARD;
+    public static final BufferedImage BLACK_SIDE_BOARD;
     private static final int SQUARE_SIDE_LENGTH = 512;
     private static final int BOARD_SIDE_LENGTH = 8 * SQUARE_SIDE_LENGTH;
 
     static {
-        EMPTY_BOARD = new BufferedImage(BOARD_SIDE_LENGTH,
+        WHITE_SIDE_BOARD = new BufferedImage(BOARD_SIDE_LENGTH,
+                BOARD_SIDE_LENGTH,
+                BufferedImage.TYPE_4BYTE_ABGR);
+        BLACK_SIDE_BOARD = new BufferedImage(BOARD_SIDE_LENGTH,
                 BOARD_SIDE_LENGTH,
                 BufferedImage.TYPE_4BYTE_ABGR);
         for (int y = 0; y < BOARD_SIDE_LENGTH; y++) {
             for (int x = 0; x < BOARD_SIDE_LENGTH; x++) {
-                boolean isSquareBlack =
+                boolean isSquareBlackFromWhiteSide =
                         ((x / SQUARE_SIDE_LENGTH) % 2) == ((y / SQUARE_SIDE_LENGTH) % 2);
-                var color = (isSquareBlack) ?
-                        new java.awt.Color(0x263238) : new java.awt.Color(0xFEFEFE);
-                EMPTY_BOARD.setRGB(x, y, color.getRGB());
+                final int rgbForWhite;
+                final int rgbForBlack;
+                if (isSquareBlackFromWhiteSide) {
+                    rgbForWhite = 0x263238;
+                    rgbForBlack = 0xFEFEFE;
+                } else {
+                    rgbForWhite = 0xFEFEFE;
+                    rgbForBlack = 0x263238;
+                }
+                var colorForWhite = new java.awt.Color(rgbForWhite);
+                var colorForBlack = new java.awt.Color(rgbForBlack);
+                WHITE_SIDE_BOARD.setRGB(x, y, colorForWhite.getRGB());
+                BLACK_SIDE_BOARD.setRGB(x, y, colorForBlack.getRGB());
             }
         }
 
@@ -39,7 +53,7 @@ public class ChessImageProcessor {
         var boardImage = new BufferedImage(BOARD_SIDE_LENGTH,
                 BOARD_SIDE_LENGTH,
                 BufferedImage.TYPE_4BYTE_ABGR);
-        boardImage.setData(EMPTY_BOARD.getRaster());
+        boardImage.setData(WHITE_SIDE_BOARD.getRaster());
 
         for (int row = 0; row < 8; row++) {
             for (int line = 0; line < 8; line++) {
@@ -67,7 +81,7 @@ public class ChessImageProcessor {
         var boardImage = new BufferedImage(BOARD_SIDE_LENGTH,
                 BOARD_SIDE_LENGTH,
                 BufferedImage.TYPE_4BYTE_ABGR);
-        boardImage.setData(EMPTY_BOARD.getRaster());
+        boardImage.setData(WHITE_SIDE_BOARD.getRaster());
 
         int firstGeneratedRow = (colorOnTheBottom == Color.BLACK) ? 0 : 7;
         int limit = (colorOnTheBottom == Color.BLACK) ? 8 : -1;
