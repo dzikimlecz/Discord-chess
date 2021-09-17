@@ -29,12 +29,8 @@ public class ChessImageProcessor {
 
     private static void initBackgroundFiles() {
         createFiles();
-        var WHITE_SIDE_BOARD = new BufferedImage(BOARD_SIDE_LENGTH,
-                BOARD_SIDE_LENGTH,
-                BufferedImage.TYPE_4BYTE_ABGR);
-        var BLACK_SIDE_BOARD = new BufferedImage(BOARD_SIDE_LENGTH,
-                BOARD_SIDE_LENGTH,
-                BufferedImage.TYPE_4BYTE_ABGR);
+        var WHITE_SIDE_BOARD = createImage();
+        var BLACK_SIDE_BOARD = createImage();
         fillBackgrounds(WHITE_SIDE_BOARD, BLACK_SIDE_BOARD);
         saveBackgrounds(WHITE_SIDE_BOARD, BLACK_SIDE_BOARD);
     }
@@ -82,35 +78,52 @@ public class ChessImageProcessor {
 
     public BufferedImage generateImageOfBoard(List<List<ChessPiece>> pieces,
                                               @NotNull Color colorOnTheBottom) {
-        if (pieces == null || pieces.size() != 8 || pieces.get(0).size() != 8)
+        if (checkIfPiecesInvalid(pieces))
             throw new IllegalArgumentException("Illegal board format");
-        var boardImage = new BufferedImage(BOARD_SIDE_LENGTH,
-                BOARD_SIDE_LENGTH,
-                BufferedImage.TYPE_4BYTE_ABGR);
-        boardImage.setData(getBoard(colorOnTheBottom).getRaster());
+        var boardImage = getBoard(colorOnTheBottom);
+        fillBoardImage(pieces, colorOnTheBottom, boardImage);
+        return boardImage;
+    }
 
+    private void fillBoardImage(List<List<ChessPiece>> pieces, @NotNull Color colorOnTheBottom, BufferedImage boardImage) {
         int firstGeneratedRow = (colorOnTheBottom == Color.BLACK) ? 0 : 7;
         int limit = (colorOnTheBottom == Color.BLACK) ? 8 : -1;
         int delta = (colorOnTheBottom == Color.BLACK) ? 1 : -1;
-
         for (int row = firstGeneratedRow, boardRow = 0;
              row != limit && boardRow < 8; row += delta, boardRow++) {
             for (int line = 0; line < 8; line++) {
                 var piece = pieces.get(row).get(line);
                 if (piece == null) continue;
                 var pieceImage = getPieceImage(piece);
-                for (int rawY = 0; rawY < SQUARE_SIDE_LENGTH; rawY++) {
-                    int y = boardRow * SQUARE_SIDE_LENGTH + rawY;
-                    for (int rawX = 0; rawX < SQUARE_SIDE_LENGTH; rawX++) {
-                        int x = line * SQUARE_SIDE_LENGTH + rawX;
-                        int pieceImageRGB = pieceImage.getRGB(rawX, rawY);
-                        double pieceImageAlpha = pieceImageRGB / 1E6;
-                        if (pieceImageAlpha != 0) boardImage.setRGB(x, y, pieceImageRGB);
-                    }
-                }
+                overlay(boardImage, pieceImage, boardRow, line);
             }
         }
-        return boardImage;
+    }
+
+    private void overlay(BufferedImage boardImage, BufferedImage pieceImage, int boardRow, int line) {
+        for (int y = 0; y < SQUARE_SIDE_LENGTH; y++) {
+            int yInImage = boardRow * SQUARE_SIDE_LENGTH + y;
+            for (int x = 0; x < SQUARE_SIDE_LENGTH; x++) {
+                int xInImage = line * SQUARE_SIDE_LENGTH + x;
+                if (getPixelAlpha(pieceImage, y, x) != 0)
+                    boardImage.setRGB(xInImage, yInImage, pieceImage.getRGB(x, y));
+            }
+        }
+    }
+
+    private double getPixelAlpha(BufferedImage pieceImage, int y, int x) {
+        return pieceImage.getRGB(x, y) / 1E6;
+    }
+
+    @NotNull
+    private static BufferedImage createImage() {
+        return new BufferedImage(BOARD_SIDE_LENGTH,
+                BOARD_SIDE_LENGTH,
+                BufferedImage.TYPE_4BYTE_ABGR);
+    }
+
+    private boolean checkIfPiecesInvalid(List<List<ChessPiece>> pieces) {
+        return pieces == null || pieces.size() != 8 || pieces.get(0).size() != 8;
     }
 
     private BufferedImage getBoard(Color colorOnTheBottom) {

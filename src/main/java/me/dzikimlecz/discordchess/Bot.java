@@ -4,6 +4,7 @@ package me.dzikimlecz.discordchess;
 import me.dzikimlecz.discordchess.config.Config;
 import me.dzikimlecz.discordchess.config.Logs;
 import me.dzikimlecz.discordchess.event.EventListeners;
+import me.dzikimlecz.discordchess.util.ChessImageProcessor;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 
@@ -13,7 +14,8 @@ import static net.dv8tion.jda.api.utils.cache.CacheFlag.*;
 
 public class Bot {
     public static void main(String[] args) throws Exception {
-        var config = new Config();
+		initImageProcessor();
+		var config = new Config();
 
 		JDABuilder.createDefault(config.get("token"))
 				.addEventListeners(new EventListeners(config, new Logs()))
@@ -27,5 +29,9 @@ public class Bot {
                         ROLE_TAGS
                 ).setActivity(Activity.playing("chess"))
                 .build();
+	}
+
+	private static void initImageProcessor() {
+		new ChessImageProcessor();
 	}
 }
