@@ -6,12 +6,18 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class ChessImageProcessor {
 
@@ -101,13 +107,24 @@ public class ChessImageProcessor {
     }
 
     private void overlay(BufferedImage boardImage, BufferedImage pieceImage, int boardRow, int line) {
+        ExecutorService executor = Executors.newFixedThreadPool(4);
         for (int y = 0; y < SQUARE_SIDE_LENGTH; y++) {
             int yInImage = boardRow * SQUARE_SIDE_LENGTH + y;
-            for (int x = 0; x < SQUARE_SIDE_LENGTH; x++) {
-                int xInImage = line * SQUARE_SIDE_LENGTH + x;
-                if (getPixelAlpha(pieceImage, y, x) != 0)
-                    boardImage.setRGB(xInImage, yInImage, pieceImage.getRGB(x, y));
-            }
+            int finalY = y;
+            executor.execute(() -> {
+                for (int x = 0; x < SQUARE_SIDE_LENGTH; x++) {
+                    int xInImage = line * SQUARE_SIDE_LENGTH + x;
+                    if (getPixelAlpha(pieceImage, finalY, x) != 0)
+                        boardImage.setRGB(xInImage, yInImage, pieceImage.getRGB(x, finalY));
+                }
+            });
+        }
+        
+        executor.shutdown();
+        try {
+            executor.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
