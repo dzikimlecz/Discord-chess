@@ -3,6 +3,9 @@ Discord bot for playing chess with visualisation of the game
 
 ![image](https://github.com/dzikimlecz/Discord-chess/assets/67097253/0dea3bfe-e253-4ecc-bf4f-069b4a2d3c86)
 
+# Build
+This program requires [my library for simulating chess games](https://github.com/dzikimlecz/ChessAPI).  
+Provide path to it in build.gradle.
 
 # Configuration
 The program requires a .env file containing discord app token and default command prefix. Example:  
